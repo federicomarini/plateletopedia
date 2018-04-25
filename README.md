@@ -13,6 +13,15 @@ The Plateletopedia is available at ...
 
 ## How to use
 
+## Datasets included
+
+Currently, Plateletopedia includes in-house generated datasets, combined together with
+publicly available data. These include:
+
+- 
+- 
+
+
 ## Citing this resource
 
 If you use Plateletopedia, please cite ...
