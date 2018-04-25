@@ -15,7 +15,11 @@ The Plateletopedia is available at ...
 
 ## Citing this resource
 
+If you use Plateletopedia, please cite ...
 
+## Contact
+
+If you have questions or comments about Plateletopedia, please contact [Federico Marini](marinif@uni-mainz.de).
 
 
 
