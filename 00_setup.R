@@ -1,9 +1,13 @@
-# Creating folder structure for the main reosurce
+## -------------------------------------------------------------------------- ##
+##  Creating folder structure for the main reosurce
+## -------------------------------------------------------------------------- ##
 
 dir.create("_ref")        # for reference genomes, annotations, and so on
 dir.create("_db")         # for sql(ite) dbs, or tabular dbs retrieved
 
-# Retrieving via SRAdb the whole dump of the SRA repository
+## -------------------------------------------------------------------------- ##
+##  Retrieving via SRAdb the whole dump of the SRA repository
+## -------------------------------------------------------------------------- ##
 library(SRAdb)
 sqlfile <- '_db/SRAmetadb.sqlite'
 if(!file.exists('_db/SRAmetadb.sqlite')) 
@@ -59,8 +63,9 @@ rs <- getSRA( search_terms = "platelets",out_types = c('run','study'), sra_con )
 unique(rs$study)   ## as a starter
 
 
-
-# retrieve the whole refs and annotations
+## -------------------------------------------------------------------------- ##
+##  Retrieve the whole refs and annotations
+## -------------------------------------------------------------------------- ##
 
 
 
@@ -104,7 +109,9 @@ system("gunzip _ref/ENSEMBL_release92/*")
 
 
 
-## installing the binaries of the tools that are required
+## -------------------------------------------------------------------------- ##
+##  Installing the binaries of the tools that are required
+## -------------------------------------------------------------------------- ##
 
 # nice solution: via bioconda!
 conda install -c bioconda ucsc-gtftogenepred  ucsc-genepredtobed
@@ -114,6 +121,11 @@ conda install sra-tools
 conda install parallel-fastqdump
 
 # Do something like an environment.yaml file to be read and fed directly to conda?
+
+
+## -------------------------------------------------------------------------- ##
+##  Creating the relevant indices
+## -------------------------------------------------------------------------- ##
 
 ## STAR
 
@@ -139,6 +151,11 @@ salmon index -t Mus_musculus.GRCm38.cdna.ncrna.fa -i index_salmon_mm_GRCm38.91_c
 
 kallisto index --index=index_kallisto_hs_GRCh38.91_cdna.ncrna.kidx -k 31 Homo_sapiens.GRCh38.cdna.ncrna.fa
 kallisto index --index=index_kallisto_mm_GRCm38.91_cdna.ncrna.kidx -k 31 Mus_musculus.GRCm38.cdna.ncrna.fa
+
+
+## -------------------------------------------------------------------------- ##
+##  Converting the annotation files to formats used by other tools
+## -------------------------------------------------------------------------- ##
 
 
 
