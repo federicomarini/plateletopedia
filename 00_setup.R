@@ -127,30 +127,38 @@ conda install parallel-fastqdump
 ##  Creating the relevant indices
 ## -------------------------------------------------------------------------- ##
 
-## STAR
+
+# one fasta file for both coding and noncoding genes
+cat _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa \
+    _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.ncrna.fa > \
+    _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa
+cat _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa \
+    _ref/ENSEMBL_release92/Mus_musculus.GRCm38.ncrna.fa > \
+    _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa
 
 
-mkdir _ref/index_STAR_hs_GRCh38.91
-STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_hs_GRCh38.91 \
---genomeFastaFiles _ref/Homo_sapiens.GRCh38.dna.primary_assembly.fa \
---sjdbGTFfile _ref/Homo_sapiens.GRCh38.91.gtf --sjdbOverhang 100 # as default value, works for range of cases
 
-mkdir _ref/index_STAR_mm_GRCm38.91
-STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRCm38.91 \
---genomeFastaFiles _ref/Mus_musculus.GRCm38.dna.primary_assembly.fa \
---sjdbGTFfile _ref/Mus_musculus.GRCm38.91.gtf --sjdbOverhang 100 # as default value, works for range of cases
+## STAR indices
+
+mkdir _ref/index_STAR_hs_GRCh38.92
+STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_hs_GRCh38.92 \
+--genomeFastaFiles _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.dna.primary_assembly.fa \
+--sjdbGTFfile _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf --sjdbOverhang 100 # as default value, works for range of cases
+
+mkdir _ref/index_STAR_mm_GRCm38.92
+STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRCm38.92 \
+--genomeFastaFiles _ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.fa \
+--sjdbGTFfile _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf --sjdbOverhang 100 # as default value, works for range of cases
 
 # salmon indices
-cat Homo_sapiens.GRCh38.cdna.all.fa Homo_sapiens.GRCh38.ncrna.fa > Homo_sapiens.GRCh38.cdna.ncrna.fa
-cat Mus_musculus.GRCm38.cdna.all.fa Mus_musculus.GRCm38.ncrna.fa > Mus_musculus.GRCm38.cdna.ncrna.fa
 
-salmon index -t Homo_sapiens.GRCh38.cdna.ncrna.fa -i index_salmon_hs_GRCh38.91_cdna.ncrna.sidx --type quasi -k 31
-salmon index -t Mus_musculus.GRCm38.cdna.ncrna.fa -i index_salmon_mm_GRCm38.91_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i index_salmon_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i index_salmon_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
 
 # kallisto indices
 
-kallisto index --index=index_kallisto_hs_GRCh38.91_cdna.ncrna.kidx -k 31 Homo_sapiens.GRCh38.cdna.ncrna.fa
-kallisto index --index=index_kallisto_mm_GRCm38.91_cdna.ncrna.kidx -k 31 Mus_musculus.GRCm38.cdna.ncrna.fa
+kallisto index --index=index_kallisto_hs_GRCh38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa
+kallisto index --index=index_kallisto_mm_GRCm38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa
 
 
 ## -------------------------------------------------------------------------- ##
@@ -160,30 +168,33 @@ kallisto index --index=index_kallisto_mm_GRCm38.91_cdna.ncrna.kidx -k 31 Mus_mus
 
 
 # gtf to genePred formats, as well as to refFlat, and also to bed
-gtfToGenePred -genePredExt -geneNameAsName2 _ref/Homo_sapiens.GRCh38.91.gtf refFlat.tmp.txt
-paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/Homo_sapiens.GRCh38.91.refFlat.txt
+gtfToGenePred -genePredExt -geneNameAsName2 _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf refFlat.tmp.txt
+paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.refFlat.txt
+rm refFlat.tmp.txt
 
-gtfToGenePred -genePredExt -geneNameAsName2 _ref/Mus_musculus.GRCm38.91.gtf refFlat.tmp.txt
-paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/Mus_musculus.GRCm38.91.refFlat.txt
-
-gtfToGenePred _ref/Homo_sapiens.GRCh38.91.gtf _ref/Homo_sapiens.GRCh38.91.genePred
-gtfToGenePred _ref/Mus_musculus.GRCm38.91.gtf _ref/Mus_musculus.GRCm38.91.genePred
-
-genePredToBed _ref/Homo_sapiens.GRCh38.91.genePred _ref/Homo_sapiens.GRCh38.91.bed
-genePredToBed _ref/Mus_musculus.GRCm38.91.genePred _ref/Mus_musculus.GRCm38.91.bed
+gtfToGenePred -genePredExt -geneNameAsName2 _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf refFlat.tmp.txt
+paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.refFlat.txt
+rm refFlat.tmp.txt
 
 
+gtfToGenePred _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.genePred
+gtfToGenePred _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.genePred
 
-## Path to the kallisto binary
-kallistobin <- "/usr/local/software/kallisto_linux-v0.44.0/kallisto"
-kallistoversion <- "0.44"
+genePredToBed _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.genePred _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.bed
+genePredToBed _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.genePred _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.bed
 
-## Human cDNA & ncRNA + ERCC
-cmd <- sprintf("bash -c '%s index -i %s %s'",
-               kallistobin,
-               gsub("cdna.all.fa$", paste0(human_ensembl_version,
-                                           ".cdna.ncrna.ercc92.", kallistoversion,
-                                           ".kidx"), human_cdna_fa),
-               paste0("<(cat ", human_cdna_fa, " ", human_ncrna_fa, " ", ercc_fa, ")"))
-cmd
-system(cmd)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
