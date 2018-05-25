@@ -152,13 +152,13 @@ STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRC
 
 # salmon indices
 
-salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i index_salmon_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
-salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i index_salmon_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i _ref/index_salmon_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i _ref/index_salmon_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
 
 # kallisto indices
 
-kallisto index --index=index_kallisto_hs_GRCh38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa
-kallisto index --index=index_kallisto_mm_GRCm38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa
+kallisto index --index=_ref/index_kallisto_hs_GRCh38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa
+kallisto index --index=_ref/index_kallisto_mm_GRCm38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa
 
 
 ## -------------------------------------------------------------------------- ##
