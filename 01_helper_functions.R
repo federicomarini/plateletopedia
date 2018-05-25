@@ -515,7 +515,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
       salmon_call <- paste(salmon_bin,"quant",
                            "--threads",salmon_ncores,
                            "--numBootstraps",salmon_nbootstraps,
-                           "--seqBias",salmon_gcbias,
+                           ifelse(salmon_gcbias, "--seqBias", ""),
                            "--libType A",
                            "--index", salmon_index,
                            "-r",this_fastqset,
@@ -525,7 +525,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
       salmon_call <- paste(salmon_bin,"quant",
                            "--threads",salmon_ncores,
                            "--numBootstraps",salmon_nbootstraps,
-                           "--seqBias",salmon_gcbias,
+                           ifelse(salmon_gcbias, "--seqBias", ""),
                            "--libType A",
                            "--index", salmon_index,
                            "-1",this_fastqset$r1,"-2",this_fastqset$r2,
@@ -752,7 +752,14 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
 # one way of doing this: using vdb-validate from sra-toolkit
 # https://www.biostars.org/p/147148/
 
-#' Title
+#' Validate the sra files
+#' 
+#' Validate sra files via vdb-validate from the sra toolkit
+#' 
+#' A working installation of the sra-toolkit has to be present.
+#' 
+#' Ideally, after the sra files are downloaded and checked, they could be deleted
+#' after dumping the fastq files
 #'
 #' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
 #' @param nthreads 
@@ -820,6 +827,8 @@ validate_sra <- function(samplesinfo,
     return(samplesinfo)
   }
 }
+
+
 
 
 
