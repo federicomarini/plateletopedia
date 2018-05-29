@@ -200,9 +200,17 @@ query(ah, c("92", "EnsDb","Mus"))
 edb_v92_human <- ah[["AH60977"]]
 edb_v92_mouse <- ah[["AH60992"]]
 
-makeEnsembldbPackage(dbfile(dbconn(edb_v92_human)),version = "0.99.0", maintainer = "Federico Marini <marinif@uni-mainz.de>", author = "F Marini")
+makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v92_human)),
+                     version = "0.0.0.9000", 
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>", 
+                     author = "F Marini",
+                     destDir = "_ref")
 
-makeEnsembldbPackage(dbfile(dbconn(edb_v92_mouse)),version = "0.99.0", maintainer = "Federico Marini <marinif@uni-mainz.de>", author = "F Marini")
+makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v92_mouse)),
+                     version = "0.0.0.9000", 
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>",
+                     author = "F Marini",
+                     destDir = "_ref")
 
 # these should be then built/installed as usual if one wants to avoid using the (still very handy) AnnotationHub
 
