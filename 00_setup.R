@@ -120,6 +120,8 @@ conda install sra-tools
 
 conda install parallel-fastqdump
 
+conda install suppa
+
 # Do something like an environment.yaml file to be read and fed directly to conda?
 
 
@@ -183,6 +185,34 @@ gtfToGenePred _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf _ref/ENSEMBL_rel
 genePredToBed _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.genePred _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.bed
 genePredToBed _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.genePred _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.bed
 
+
+## for SUPPA - generate events files
+# generate local AS events
+mkdir _ref/index_suppa_hs_GRCh38.92
+suppa.py generateEvents -i _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf \
+-o suppa_hs_GRCh38.92_events -f ioe -e SE SS MX RI FL
+#Put all the ioe events in the same file:
+awk '
+FNR==1 && NR!=1 { while (/^<header>/) getline; }
+1 {print}
+' suppa_hs_GRCh38.92_events*.ioe > suppa_hs_GRCh38.92_events.ioe
+# moving all the files to _ref location (cannot generate them directly, raises error?)
+mv suppa_hs_GRCh38.92_events* _ref/index_suppa_hs_GRCh38.92/
+  
+mkdir _ref/index_suppa_mm_GRCm38.92
+suppa.py generateEvents -i _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf \
+-o suppa_mm_GRCm38.92_events -f ioe -e SE SS MX RI FL
+awk '
+FNR==1 && NR!=1 { while (/^<header>/) getline; }
+1 {print}
+' suppa_mm_GRCm38.92_events*.ioe > suppa_mm_GRCm38.92_events.ioe
+mv suppa_mm_GRCm38.92_events* _ref/index_suppa_mm_GRCm38.92/
+
+# generate the transcript "events"  
+suppa.py generateEvents -i _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf \
+-o _ref/index_suppa_hs_GRCh38.92/suppa_hs_GRCh38.92_txevents -f ioi 
+suppa.py generateEvents -i _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf \
+-o _ref/index_suppa_mm_GRCm38.92/suppa_mm_GRCm38.92_txevents -f ioi 
 
 ## -------------------------------------------------------------------------- ##
 ##  Retrieving the annotations from AnnotationHub and making them pkgs
