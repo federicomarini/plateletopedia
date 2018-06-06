@@ -784,6 +784,9 @@ validate_sra <- function(samplesinfo,
   stopifnot(!is.null(samplesinfo$runinfo))
   stopifnot(!is.null(samplesinfo$files_sra))
   
+  st <- Sys.time()
+  timestamp()
+  
   if(!is.null(samplesinfo$validated_sra) & !force){
     message("sra files have been already validated")
     if(all(samplesinfo$validated_sra == 0))
@@ -825,6 +828,11 @@ validate_sra <- function(samplesinfo,
     
     # add some info to the samplesinfo that we did perform validation
     samplesinfo$validated_sra <- myret
+    
+    et <- Sys.time()
+    elapsed_time <- et - st
+    message("Elapsed time: ", round(elapsed_time,3), " ", attr(elapsed_time,"units"))
+    
     return(samplesinfo)
   }
 }
@@ -938,7 +946,5 @@ check_fastq <- function(samplesinfo,
     return(samplesinfo)
   }
 }
-
-
 
 
