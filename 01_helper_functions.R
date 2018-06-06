@@ -762,7 +762,8 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
 #' after dumping the fastq files
 #'
 #' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
-#' @param nthreads 
+#' @param nthreads The number of cores to use if parallel calls are to be used. The 
+#' BiocParallel package is used to handle the multicore parameters
 #' @param force Logical. If the file to be created is already available, it can be 
 #' overwritten by setting to TRUE. Defaults to FALSE
 #'
@@ -797,7 +798,7 @@ validate_sra <- function(samplesinfo,
     
     message("Checking that all sra files exist...")
     allthere <- all(file.exists(samplesinfo$files_sra))
-    message(allthere)
+    message("All there... "allthere)
     if(!allthere)
       message("Missing datasets:", samplesinfo$files_sra[!file.exists(samplesinfo$files_sra)])
     
@@ -828,6 +829,99 @@ validate_sra <- function(samplesinfo,
   }
 }
 
+
+
+
+#' Check the fastq.gz files
+#' 
+#' Checks the integrity of the fastq.gz files, based on a system call to gunzip -t
+#' 
+#' Note: no parallelization is expected in this case, as it normally clutters the 
+#' I/O rate of the storage system, thus slowing everything down.
+#' 
+#' This function might require some time to run, especially for sets with many
+#' samples or big sized data. Just sit tight and grab a coffee (or two)
+#'
+#' @param samplesinfo A samplesinfo-like list to store all the required info and steps. 
+#' @param force Logical. If the file to be created is already available, it can be 
+#' overwritten by setting to TRUE. Defaults to FALSE
+#'
+#' @return
+#' @export
+#'
+#' @examples
+check_fastq <- function(samplesinfo,
+                        force = FALSE) {
+  stopifnot(!is.null(samplesinfo$runinfo))
+  stopifnot(!is.null(samplesinfo$files_sra))
+  
+  # fastq files need to be there already
+  stopifnot(!is.null(samplesinfo[["files_fastq"]]))
+  
+  nrsamples <- length(samplesinfo$files_fastq)
+  nrsamples_runinfo <- nrow(samplesinfo$runinfo)
+  # if there is a discrepancy, flag it?
+  
+  if(!is.null(samplesinfo$checked_fastq) & !force){
+    message("fastq files have been already checked for integrity")
+    if(all(samplesinfo$checked_fastq == 0))
+      message("All files checked, YAY!")
+    else
+      message("Following files were not ok: ",
+              names(samplesinfo$checked_fastq[samplesinfo$checked_fastq != 0]))
+    return(samplesinfo)
+  } else {
+    # no need to replicate the single/paired structure of the data. yet...
+    # samplesinfo$checked_fastq <- samplesinfo$files_fastq
+    
+    check_calls <- lapply(seq_len(nrsamples), function (i) {
+      this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+      if (this_libtype == "SINGLE") {
+        this_fastqset <- samplesinfo$files_fastq[[i]]
+        mycall <- paste0("gunzip -t ",this_fastqset)
+        return(mycall)  
+      } else if (this_libtype == "PAIRED"){
+        this_fastqset <- samplesinfo$files_fastq[[i]]
+        mycall_r1 <- paste0("gunzip -t ",this_fastqset$r1)
+        mycall_r2 <- paste0("gunzip -t ",this_fastqset$r2)
+        mycall <- c(mycall_r1,mycall_r2)
+        return(mycall)  
+      }
+    })
+    names(check_calls) <- samplesinfo$runinfo$Run
+    
+    # gracefully transform into vector and keep matched names
+    unlisted_check_calls <- unlist(check_calls)
+    
+    allfastqs <- unlist(lapply(seq_len(nrsamples), function (i) {
+      this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+      if (this_libtype == "SINGLE")
+        return(names(samplesinfo$files_fastq)[i])
+      else if (this_libtype == "PAIRED")
+        return(c(paste0(names(samplesinfo$files_fastq)[i],"_1"),
+                 paste0(names(samplesinfo$files_fastq)[i],"_2"))
+              )
+    }))
+    
+    names(unlisted_check_calls) <- allfastqs
+    
+    # this one takes some time
+    ## would be nice to have some kind of progress messages while running?
+    ### something like R.utils::gunzip with remove=FALSE
+    ### probably a for cycle with messages delivered is good enough
+    myret <- unlist(lapply(unlisted_check_calls,system))
+    
+    if(all(myret == 0))
+      message("All files checked, YAY!")
+    else
+      message("Following files were not ok: ",
+              names(myret[myret != 0]))
+    
+    # add some info to the samplesinfo that we did perform validation
+    samplesinfo$checked_fastq <- myret
+    return(samplesinfo)
+  }
+}
 
 
 
