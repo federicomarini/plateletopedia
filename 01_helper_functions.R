@@ -862,6 +862,9 @@ check_fastq <- function(samplesinfo,
   nrsamples_runinfo <- nrow(samplesinfo$runinfo)
   # if there is a discrepancy, flag it?
   
+  st <- Sys.time()
+  timestamp()
+  
   if(!is.null(samplesinfo$checked_fastq) & !force){
     message("fastq files have been already checked for integrity")
     if(all(samplesinfo$checked_fastq == 0))
@@ -909,7 +912,16 @@ check_fastq <- function(samplesinfo,
     ## would be nice to have some kind of progress messages while running?
     ### something like R.utils::gunzip with remove=FALSE
     ### probably a for cycle with messages delivered is good enough
-    myret <- unlist(lapply(unlisted_check_calls,system))
+    
+    myret <- rep(NA,length(unlisted_check_calls))
+    names(myret) <- names(unlisted_check_calls)
+    
+    for(i in seq_len(length(unlisted_check_calls))) {
+      message("Checking file ",i," of ",length(unlisted_check_calls),
+              " - filename: ", names(unlisted_check_calls)[i],".fastq.gz...")
+      myret[i] <- system(unlisted_check_calls[i])
+    }
+    # myret <- unlist(lapply(unlisted_check_calls,system))
     
     if(all(myret == 0))
       message("All files checked, YAY!")
@@ -919,6 +931,10 @@ check_fastq <- function(samplesinfo,
     
     # add some info to the samplesinfo that we did perform validation
     samplesinfo$checked_fastq <- myret
+    
+    et <- Sys.time()
+    elapsed_time <- et - st
+    message("Elapsed time: ", round(elapsed_time,3), " ", attr(elapsed_time,"units"))
     return(samplesinfo)
   }
 }
