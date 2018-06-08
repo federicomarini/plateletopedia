@@ -113,7 +113,7 @@ if(all(samplesinfo_best_wurdinger_2015$validated_sra == 0)) {
 ## -------------------------------------------------------------------------- ##
 
 samplesinfo_best_wurdinger_2017 <- fetch_sraruninfo("SRP093349",datasetID = "best_wurdinger-TEPs_swarm-2017") %>% 
-  fetch_geoinfo("GSE85864") %>% 
+  fetch_geoinfo("GSE89843") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
@@ -132,16 +132,6 @@ if(all(samplesinfo_best_wurdinger_2017$validated_sra == 0)) {
 
 
 
-
-
-
-
-samplesinfo_best_wurdinger_2017 <- fetch_sraruninfo("SRP093349",datasetID = "best_wurdinger-TEPs_swarm-2017") %>% 
-  fetch_geoinfo("GSE85864") %>% 
-  create_analysisfolders() %>% 
-  get_sradata() %>% 
-  sra_to_fastq() %>% 
-  match_fastq() 
 
 
 
