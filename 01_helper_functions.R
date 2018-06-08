@@ -295,7 +295,7 @@ sra_to_fastq <- function(samplesinfo,
                          force = FALSE
 ) {
   sra_files <- samplesinfo$files_sra
-  sra_libtypes <- samplesinfo$library_types
+  sra_libtypes <- samplesinfo$runinfo$LibraryLayout
   
   param_set <- "--gzip --skip-technical"
 
@@ -387,7 +387,7 @@ match_fastq <- function(samplesinfo,
   names(list_matchedfastqs) <- gsub(".sra","",basename(files_sra))
   # return(list_matchedfastqs)
   samplesinfo[["files_fastq"]] <- list_matchedfastqs
-  
+  message("Performed assignment of fastq files to corresponding sra archives. The "))
   return(samplesinfo)
 }
 
@@ -801,7 +801,7 @@ validate_sra <- function(samplesinfo,
     
     message("Checking that all sra files exist...")
     allthere <- all(file.exists(samplesinfo$files_sra))
-    message("All there... "allthere)
+    message("All there... ", allthere)
     if(!allthere)
       message("Missing datasets:", samplesinfo$files_sra[!file.exists(samplesinfo$files_sra)])
     
@@ -869,6 +869,8 @@ check_fastq <- function(samplesinfo,
   nrsamples <- length(samplesinfo$files_fastq)
   nrsamples_runinfo <- nrow(samplesinfo$runinfo)
   # if there is a discrepancy, flag it?
+  
+  # somewhat inspired by the approach in https://www.biostars.org/p/147148/
   
   st <- Sys.time()
   timestamp()
@@ -946,5 +948,10 @@ check_fastq <- function(samplesinfo,
     return(samplesinfo)
   }
 }
+
+
+
+
+
 
 
