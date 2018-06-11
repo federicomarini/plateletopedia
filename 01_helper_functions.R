@@ -399,6 +399,99 @@ match_fastq <- function(samplesinfo,
 
 
 
+#' Create a samplesinfo object from local data
+#' 
+#' Initialize a samplesinfo object, from a non-public data repository.
+#'
+#' @param datasetID  A string, ideally informative about the project/dataset it refers to.
+#' An example could be "firstauthor_last-paper_topic-year".
+#' @param data_dir A string, with the name of the main folder where the subfolder called 
+#' \code{datasetID} is supposed to be found, plus where the rest of the computations would
+#' be performed
+#' @param samples_metadata The file containing information in a format similar to a SRARunInfo 
+#' file. This is expected to be in csv format
+#' @param files_fastq A vector containing the full names of the fastq(.gz) files. Typically
+#' the output of a call to \code{list.files(..., full.names = TRUE)} 
+#' @param study_ID A string identifier, thought to mimicry the SRP id normally provided 
+#' from SRA. Recommended to be short, e.g. 'F07', if related to Project folder F07
+#'
+#' @return
+#' @export
+#'
+#' @examples
+initialize_samplesinfo <- function(datasetID = NULL, 
+                                   data_dir = NULL,
+                                   samples_metadata = NULL,
+                                   files_fastq = NULL,
+                                   study_ID = NULL) {
+  # checks:
+  stopifnot(!is.null(datasetID))
+  stopifnot(!is.null(data_dir))
+  stopifnot(!is.null(samples_metadata))
+  
+  samplesinfo <- list()
+  
+  stopifnot(file.exists(samples_metadata))
+  
+  message("Reading in the sample metadata provided...")
+  
+  runinfo <- read.delim(samples_metadata, header = TRUE, sep =",", as.is = TRUE)
+  # need to provide at least the LibraryLayout, as in the SRA run info files
+  if(!"LibraryLayout" %in% names(runinfo))
+    stop("No column with name 'LibraryLayout' provided! Subsequent functions might not work correctly, please provide this information!")
+  # checking the content of the LibraryLayout: must be 'SINGLE' or 'PAIRED'
+  
+  if(!"Run" %in% names(runinfo))
+    stop("No column with name 'Run' provided! Please provide such information!")
+  
+  if(!"ScientificName" %in% names(runinfo))
+    stop("No column with name 'ScientificName' provided! Please provide the species information!")
+  if(!"TaxID" %in% names(runinfo))
+    stop("No column with name 'TaxID' provided! Please provide the species information!")
+  
+  if(length(runinfo$Run) != length(unique(runinfo$Run)))
+    stop("No unique names provided in the 'Run' column")
+  
+  # adding also a fake "SRAStudy" column for compatibility with the other functions
+  runinfo$Study <- study_ID  
+  runinfo$SRAStudy <- study_ID
+    
+  samplesinfo[["runinfo"]] <- runinfo
+  samplesinfo[["datasetID"]] <- datasetID
+  samplesinfo[["data_dir"]] <- data_dir
+  samplesinfo[["srifile"]] <- samples_metadata  
+  
+  # check that all data provided actually exist
+  if(!all(file.exists(files_fastq)))
+    stop("Error: not all files provided seem to exist. Possible reason: you did not specify the full path? Retry providing the output of 'list.files(..., full.names = TRUE)'")
+  
+  # if libtype is single, one file is expected; otherwise it should be two
+  list_matchedfastqs <- lapply(seq_len(length(runinfo$Run)), function(arg){
+    thislib <- runinfo$LibraryLayout[arg]
+    thisrun <- runinfo$Run[arg]
+    if(thislib=="SINGLE") {
+      # should be only one
+      single_fastq <- files_fastq[grep(thisrun,files_fastq)]
+      thisfastqfiles <- single_fastq
+    } else {
+      # should be two
+      paired_fastq <- files_fastq[grep(thisrun,files_fastq)]
+      thisfastqfiles <- list(r1 = paired_fastq[1], r2 = paired_fastq[2])
+    }
+    return(thisfastqfiles)
+  })
+  
+  names(list_matchedfastqs) <- runinfo$Run
+  
+  samplesinfo[["files_fastq"]] <- list_matchedfastqs
+ 
+  return(samplesinfo)
+}
+
+
+
+
+
 #' Run FastQC for quality control
 #' 
 #' Creates a script for running FastQC on the fastq.gz files
