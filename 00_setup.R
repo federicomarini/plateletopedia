@@ -1,12 +1,12 @@
 ## -------------------------------------------------------------------------- ##
-##  Creating folder structure for the main reosurce
+##  Creating folder structure for the main reosurce -------------------------
 ## -------------------------------------------------------------------------- ##
 
 dir.create("_ref")        # for reference genomes, annotations, and so on
 dir.create("_db")         # for sql(ite) dbs, or tabular dbs retrieved
 
 ## -------------------------------------------------------------------------- ##
-##  Retrieving via SRAdb the whole dump of the SRA repository
+##  Retrieving via SRAdb the whole dump of the SRA repository ---------------
 ## -------------------------------------------------------------------------- ##
 library(SRAdb)
 sqlfile <- '_db/SRAmetadb.sqlite'
@@ -64,7 +64,7 @@ unique(rs$study)   ## as a starter
 
 
 ## -------------------------------------------------------------------------- ##
-##  Retrieve the whole refs and annotations
+##  Retrieve the whole refs and annotations ---------------------------------
 ## -------------------------------------------------------------------------- ##
 
 
@@ -110,7 +110,7 @@ system("gunzip _ref/ENSEMBL_release92/*")
 
 
 ## -------------------------------------------------------------------------- ##
-##  Installing the binaries of the tools that are required
+##  Installing the binaries of the tools that are required ------------------
 ## -------------------------------------------------------------------------- ##
 
 # nice solution: via bioconda!
@@ -126,7 +126,7 @@ conda install suppa
 
 
 ## -------------------------------------------------------------------------- ##
-##  Creating the relevant indices
+##  Creating the relevant indices -------------------------------------------
 ## -------------------------------------------------------------------------- ##
 
 
@@ -157,6 +157,11 @@ STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRC
 salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i _ref/index_salmon_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
 salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i _ref/index_salmon_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
 
+# also with cdna only...
+salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa -i _ref/index_salmon_hs_GRCh38.92_cdna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa -i _ref/index_salmon_mm_GRCm38.92_cdna.sidx --type quasi -k 31
+
+
 # kallisto indices
 
 kallisto index --index=_ref/index_kallisto_hs_GRCh38.92_cdna.ncrna.kidx -k 31 _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa
@@ -164,7 +169,7 @@ kallisto index --index=_ref/index_kallisto_mm_GRCm38.92_cdna.ncrna.kidx -k 31 _r
 
 
 ## -------------------------------------------------------------------------- ##
-##  Converting the annotation files to formats used by other tools
+##  Converting the annotation files to formats used by other tools ----------
 ## -------------------------------------------------------------------------- ##
 
 
@@ -215,7 +220,7 @@ suppa.py generateEvents -i _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf \
 -o _ref/index_suppa_mm_GRCm38.92/suppa_mm_GRCm38.92_txevents -f ioi 
 
 ## -------------------------------------------------------------------------- ##
-##  Retrieving the annotations from AnnotationHub and making them pkgs
+##  Retrieving the annotations from AnnotationHub and making them pkgs ------
 ## -------------------------------------------------------------------------- ##
 
 
