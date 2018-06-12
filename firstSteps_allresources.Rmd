@@ -116,127 +116,6 @@ wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/008/SRR5223058/SRR5223058.fast
 
 
 ```{r}
-SRP118609 - https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP118609
-# activated platelets - RNAseq of Human platelets
-
-
-rs <- getSRAinfo ( c("SRP118609"), sra_con, sraType = "sra" )
-rs2 <- getFASTQinfo ( c("SRP118609"), sra_con)
-getSRAfile(rs2$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059498/SRR6059498.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059499/SRR6059499.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059500/SRR6059500.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059501/SRR6059501.sra
-
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/008/SRR6059498/SRR6059498.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/009/SRR6059499/SRR6059499.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/000/SRR6059500/SRR6059500_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/000/SRR6059500/SRR6059500_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/001/SRR6059501/SRR6059501_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/001/SRR6059501/SRR6059501_2.fastq.gz
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP003815
-# RNA-sequencing analysis of human platelet rRNA-depleted total RNA from two normal males and one female. The goal of this experiment was to identify genes expressed in unstimulated circulating platelets. Data from platelet polyA-mRNA has also been deposited at ArrayExpress, under accession number E-MTAB-715, https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-715/ 
-Next Generation Sequencing Analysis of Human Platelet polyA+ mRNAs and rRNA-depleted total RNA. Kissopoulou A, Jonasson J, Lindahl TL, Osman A.
-.
-
-getSRAinfo ( c("ERP003815"), sra_con, sraType = "sra" )
-getFASTQinfo ( c("ERP003815"), sra_con )
-
-getSRAinfo ( "E-MTAB-715", sra_con, sraType = "sra" )
-getSRAinfo ( "ERP000803", sra_con, sraType = "sra" )
-getFASTQinfo ( "ERP000803", sra_con )
-ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR039/ERR039697/ERR039697.fastq.gz
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335311/ERR335311.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335312/ERR335312.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335313/ERR335313.sra 
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR039/ERR039697/ERR039697.sra
-
-1 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335311/ERR335311.fastq.gz
-2 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335312/ERR335312.fastq.gz
-3 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335313/ERR335313.fastq.gz
-
-
-
-
-
-SRP119431 - https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP119431
-# Genome-wide RNA-seq analysis of human and mouse platelet transcriptomes
-
-rs <- getSRAinfo ( c("SRP119431"), sra_con, sraType = "sra" )
-rs2 <- getFASTQinfo ( c("SRP119431"), sra_con)
-getSRAfile(rs2$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131685/SRR6131685.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131686/SRR6131686.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131687/SRR6131687.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131688/SRR6131688.sra
-
-1 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/005/SRR6131685/SRR6131685_1.fastq.gz
-2 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/005/SRR6131685/SRR6131685_2.fastq.gz
-3 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/006/SRR6131686/SRR6131686_1.fastq.gz
-4 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/006/SRR6131686/SRR6131686_2.fastq.gz
-5 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/007/SRR6131687/SRR6131687_1.fastq.gz
-6 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/007/SRR6131687/SRR6131687_2.fastq.gz
-7 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/008/SRR6131688/SRR6131688_1.fastq.gz
-8 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/008/SRR6131688/SRR6131688_2.fastq.gz
-
-
-
-GSE100242 - https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE100242
-# Maass PG, Glažar P, Memczak S, Dittmar G et al. A map of human circular RNAs in clinically relevant tissues. J Mol Med (Berl) 2017 Nov;95(11):1179-1189. PMID: 28842720
-
-
-mygeo_gse <- getGEO("GSE100242")[[1]]
-mygeo_runs <- rownames(phenoData(mygeo_gse))
-mygeo_runslist <- lapply(mygeo_runs, getGEO)
-mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
-
-mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
-mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
-
-# reverse checks via SRAdb
-# SRP109805
-library(SRAdb)
-sqlfile <- '_db/SRAmetadb.sqlite'
-sra_con <- dbConnect(SQLite(),sqlfile)
-
-myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
-getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
-getFASTQinfo ( mygeo_SRAoverview$Accession, sra_con)
-
-getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715083/SRR5715083.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715084/SRR5715084.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715085/SRR5715085.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715086/SRR5715086.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715087/SRR5715087.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715088/SRR5715088.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715089/SRR5715089.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715090/SRR5715090.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715091/SRR5715091.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715092/SRR5715092.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715093/SRR5715093.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715094/SRR5715094.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715095/SRR5715095.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715096/SRR5715096.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715097/SRR5715097.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715098/SRR5715098.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715099/SRR5715099.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715100/SRR5715100.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715101/SRR5715101.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715102/SRR5715102.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715103/SRR5715103.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715104/SRR5715104.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715105/SRR5715105.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715106/SRR5715106.sra
 
 
 
@@ -293,39 +172,11 @@ wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR
   https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE50858
 
 
-# londin 2014 The human platelet: strong transcriptome correlations among individuals associate weakly with the platelet proteome
-SRP028846 and GSE50858
-mygeo_gse <- getGEO("GSE50858")[[1]]
-mygeo_runs <- rownames(phenoData(mygeo_gse))
-mygeo_runslist <- lapply(mygeo_runs, getGEO)
-mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
 
-mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
-mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
 
-# reverse checks via SRAdb
-# SRP109805
-library(SRAdb)
-sqlfile <- '_db/SRAmetadb.sqlite'
-sra_con <- dbConnect(SQLite(),sqlfile)
 
-getFASTQinfo( "SRP028846", sra_con, srcType = 'ftp' )
-SRP028846
 
-myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
-getSRAinfo( "SRP028846", sra_con)
-getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957099/SRR957099.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957100/SRR957100.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957101/SRR957101.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957102/SRR957102.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957103/SRR957103.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957104/SRR957104.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957108/SRR957108.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957109/SRR957109.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957110/SRR957110.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957111/SRR957111.sra
 
 
 # best 2015
@@ -338,19 +189,6 @@ SRA260904
 
 
 
-# looney 2017
-http://www.ncbi.nlm.nih.gov/sra?term=SRP097794
-SRP097794
-
-getSRAinfo( "SRP097794", sra_con)
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571012/SRR5571012.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571014/SRR5571014.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571015/SRR5571015.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571016/SRR5571016.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571017/SRR5571017.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571018/SRR5571018.sra
-
 
 
 # best 2017
@@ -362,135 +200,10 @@ Submission: SRA493919
 getSRAinfo( "SRP093349", sra_con)
 
 
-Characterization of the platelet transcriptome by RNA sequencing in patients with acute myocardial infarction.
-Identifiers: 
-SRA:SRP053296
-BioProject:PRJNA274751
-GEO:GSE65705
-Submission: SRA236686
-Characterization of the platelet transcriptome by RNA sequencing in patients with acute myocardial infarction. Eicher 2016
-
-getSRAinfo( "SRP053296", sra_con)
-
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792677/SRR1792677.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792678/SRR1792678.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792679/SRR1792679.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792680/SRR1792680.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792681/SRR1792681.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792682/SRR1792682.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792683/SRR1792683.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792684/SRR1792684.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792685/SRR1792685.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792686/SRR1792686.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792687/SRR1792687.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792688/SRR1792688.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792689/SRR1792689.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792690/SRR1792690.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792691/SRR1792691.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792692/SRR1792692.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792693/SRR1792693.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792694/SRR1792694.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792695/SRR1792695.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792696/SRR1792696.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792697/SRR1792697.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792699/SRR1792699.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792700/SRR1792700.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792701/SRR1792701.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792702/SRR1792702.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792704/SRR1792704.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792705/SRR1792705.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792706/SRR1792706.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792707/SRR1792707.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792708/SRR1792708.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792709/SRR1792709.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792710/SRR1792710.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2981913/SRR2981913.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2981929/SRR2981929.sra
 
 
 
 
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP058654
-Circular RNAs are enriched in anucleate platelets and are a signature of transcriptome degradation
-Identifiers: 
-SRA:
-SRP058654
-BioProject:
-PRJNA284775
-GEO:
-GSE69192
-
-mygeo_gse <- getGEO("GSE69192")[[1]]
-mygeo_runs <- rownames(phenoData(mygeo_gse))
-mygeo_runslist <- lapply(mygeo_runs, getGEO)
-mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
-
-mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
-mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
-
-
-myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
-getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR203/SRR2038798/SRR2038798.sra
-
-
-
-
-# Ribosome profiling of human platelets, reticulocytes, and in vitro cell lines
-https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE85864
-
-mygeo_gse <- getGEO("GSE85864")[[1]]
-mygeo_runs <- rownames(phenoData(mygeo_gse))
-mygeo_runslist <- lapply(mygeo_runs, getGEO)
-mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
-
-mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
-mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
-
-
-myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
-getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
-getFASTQinfo ( mygeo_SRAoverview$Accession, sra_con)
-
-getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045263/SRR4045263.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045264/SRR4045264.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045265/SRR4045265.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045266/SRR4045266.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045267/SRR4045267.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045268/SRR4045268.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045269/SRR4045269.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045270/SRR4045270.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045271/SRR4045271.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045272/SRR4045272.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045273/SRR4045273.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045274/SRR4045274.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045275/SRR4045275.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045276/SRR4045276.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045277/SRR4045277.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045278/SRR4045278.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045279/SRR4045279.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045280/SRR4045280.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045281/SRR4045281.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045282/SRR4045282.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045283/SRR4045283.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045284/SRR4045284.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045285/SRR4045285.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045286/SRR4045286.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045287/SRR4045287.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045288/SRR4045288.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045289/SRR4045289.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045290/SRR4045290.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045291/SRR4045291.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045292/SRR4045292.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045293/SRR4045293.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045294/SRR4045294.sra
 
 
 
