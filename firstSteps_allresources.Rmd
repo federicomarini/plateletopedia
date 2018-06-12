@@ -1,0 +1,1832 @@
+Rowley et al., 2011; Bray et al., 2013; Kissopoulou et al., 2013; Londin et al., 2014; Lefrançais et al., 2017)
+
+# Folder organizations
+
+```{r}
+# dir.create("_sra")        # for SRA raw data
+# dir.create("_fastq")      # for dumped/downloaded files
+# dir.create("_aligned")    # for aligned sam/bam/bai files
+dir.create("_ref")        # for reference genomes, annotations, and so on
+dir.create("_db")         # for sql(ite) dbs, or tabular dbs retrieved
+
+
+```
+
+
+
+```{r}
+library(GEOquery)
+library(SRAdb)
+```
+
+
+# go to publication -> directly via doi 
+
+- -- Rowley 2011 - Genome wide RNA-seq analysis of human and mouse platelet transcriptomes. Blood, 118(14), e101-11.
+- -- Bray 2013 - The complex transcriptional landscape of the anucleate human platelet. BMC Genomics, 14(1), 1
+- -- Kissopoulou 2013 - Next generation sequencing analysis of human platelet polyA+ mRNAs and rRNA-depleted total RNA. PLoS ONE, 8(12). 
+- -- Londin 2014 - The human platelet: strong transcriptome correlations among individuals associate weakly with the platelet proteome. Biology Direct, 9(1), 3. 
+- -- Lefrançais 2017 The lung is a site of platelet biogenesis and a reservoir for haematopoietic progenitors. Nature, 544(7648), 105-109. 
+- --Best 2015 - RNA-Seq of Tumor-Educated Platelets Enables Blood-Based Pan-Cancer, Multiclass, and Molecular Pathway Cancer Diagnostics. Cancer Cell, 28(5), 666-676. 
+- -- Ingolia 2017 - Slowed decay of mRNAs enhances platelet specific translation Blood 2017 129:e38-e48
+- -- Best 2017 - Swarm Intelligence-Enhanced Detection of Non-Small-Cell Lung Cancer Using Tumor-Educated Platelets.
+
+
+```{r}
+library(SRAdb)
+sqlfile <- '_db/SRAmetadb.sqlite'
+if(!file.exists('_db/SRAmetadb.sqlite')) sqlfile <<- getSRAdbFile()
+```
+
+```{r}
+# Then, create a connection for later queries. The standard DBI functionality as imple- mented in RSQLite function dbConnect makes the connection to the database. The dbDis- connect function disconnects the connection.
+sra_con <- dbConnect(SQLite(),sqlfile)
+```
+
+```{r}
+
+rs = getSRAinfo ( c("SRX000122"), sra_con, sraType = "sra" )
+rs[1:3,]
+
+getFASTQinfo( c("SRR000648","SRR000657"), sra_con, srcType = 'ftp' ) 
+getSRAfile( c("SRR000648","SRR000657"), sra_con, fileType = 'fastq' )
+
+```
+
+
+- bmdm rowley megs 
+
+
+
+# fetch GEO/SRA accession
+
+```{r}
+#' Fetch the information on a RunInfo object from SRA
+#'
+#' @param SRAid The SRA identifier, normally the SRP id for the relevant project
+#' @param datasetID  A string, ideally informative about the project/dataset it refers to. An example could be "firstauthor_last-paper_topic-year". Defaults to the SRAid value if not provided
+#' @param data_dir 
+#' @param outname 
+#' @param quietDownload 
+#' @param force_fetch 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fetch_sraruninfo <- function(SRAid,
+                             datasetID = SRAid,
+                             data_dir = "_publicdata",
+                             outname = paste0(SRAid,"_SraRunInfo.csv"),
+                             quietDownload = FALSE,
+                             force_fetch = FALSE) {
+  
+  if(is.null(datasetID))
+    stop("You need to provide an ID for the dataset")
+  
+  if(file.exists(file.path(data_dir,datasetID,outname)) & !force_fetch) {
+    message("The file for this SRAid and/or datasetID is already available. Reading in...")
+    sri_file <- list.files(file.path(data_dir,datasetID),
+                         pattern = "SraRunInfo.csv$", full.names = TRUE)
+    sri <- read.delim(sri_file, header = TRUE, sep =",", as.is = TRUE)
+    message(sri_file)
+  
+  } else {
+    if(!dir.exists(file.path(data_dir,datasetID))) {
+      dir.create(file.path(data_dir,datasetID),recursive = TRUE,showWarnings = FALSE)
+      message("Directory created at ",file.path(data_dir,datasetID) )
+    } else {
+      message("Using directory ",file.path(data_dir,datasetID) )
+    }
+    # https://www.ncbi.nlm.nih.gov/books/NBK242621/
+    # wget -O <file_name.csv> 'http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=<query>'
+    download.file(url = paste0("http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term=",
+                             SRAid),
+                destfile = file.path(data_dir,datasetID,outname),quiet = quietDownload)
+    message("SraRunInfo for SRA id ", SRAid, " downloaded at ",file.path(data_dir,datasetID,outname))
+    sri_file <- list.files(file.path(data_dir,datasetID),
+                         pattern = "SraRunInfo.csv$", full.names = TRUE)
+    sri <- read.delim(sri_file, header = TRUE, sep =",", as.is = TRUE)
+  
+  }
+  samplesinfo <- list(runinfo = sri,
+                      datasetID = datasetID,
+                      data_dir = data_dir,         # these first three arguments are mandatory - allow private data!
+                      sri_file = sri_file)
+  return(samplesinfo)
+}
+
+samplesinfo <- fetch_sraruninfo("SRP098699",datasetID = "mills_ingolia-pelo_decay-2017")
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param GEOid 
+#' @param datasetID 
+#' @param data_dir 
+#' @param outname 
+#' @param force_fetch 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fetch_geoinfo <- function(samplesinfo,
+                          GEOid,
+                          datasetID = samplesinfo$datasetID,
+                          data_dir = samplesinfo$data_dir,
+                          outname = paste0(GEOid,"_series_matrix.txt.gz"),
+                          force_fetch = FALSE) {
+  
+  if(is.null(datasetID))
+    stop("You need to provide an ID for the dataset")
+  if(file.exists(file.path(data_dir,datasetID,outname)) & !force_fetch) {
+    message("The file for this GEOid and/or datasetID is already available. Reading in...")
+    mygq <- GEOquery::getGEO(filename = file.path(data_dir,datasetID,outname),
+                   GSEMatrix = TRUE,getGPL = FALSE)
+  } else {
+    if(!dir.exists(file.path(data_dir,datasetID))) {
+      dir.create(file.path(data_dir,datasetID),recursive = TRUE,showWarnings = FALSE)
+      message("Directory created at ",file.path(data_dir,datasetID) )
+    } else {
+      message("Using directory ",file.path(data_dir,datasetID) )
+    }
+    mygq <- GEOquery::getGEO(GEOid,
+                   destdir = file.path(data_dir,datasetID),
+                   GSEMatrix = TRUE,getGPL = FALSE)[[1]]
+    message("Series matrix for GEO id ", GEOid, " downloaded at ",file.path(data_dir,datasetID,outname))
+  }
+  
+  # extend the existing samplesinfo object
+  samplesinfo$geoinfo <- mygq
+  samplesinfo$geo_file <- file.path(data_dir,datasetID,outname)
+  return(samplesinfo)
+}
+
+samplesinfo <- fetch_geoinfo("GSE94384",samplesinfo = samplesinfo)
+
+
+
+```
+
+
+```{r}
+fetch_sraruninfo("SRA535016",datasetID = "ingolia_pelo")
+fetch_geoinfo("GSE94384",datasetID = "ingolia_pelo")
+```
+
+```{r}
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param datasetID 
+#' @param data_dir 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+create_analysisfolders <- function(samplesinfo,
+                                   datasetID = samplesinfo$datasetID,
+                                   data_dir = samplesinfo$data_dir) {
+  
+  message("Creating/checking the subfolder structure for ",datasetID," in the ",data_dir," main folder...")
+  if(!dir.exists(file.path(data_dir,datasetID,"_sra")))
+    dir.create(file.path(data_dir,datasetID,"_sra"))        # for SRA raw data
+  if(!dir.exists(file.path(data_dir,datasetID,"_fastq")))
+    dir.create(file.path(data_dir,datasetID,"_fastq"))      # for dumped/downloaded files
+  if(!dir.exists(file.path(data_dir,datasetID,"_qc")))
+    dir.create(file.path(data_dir,datasetID,"_qc"))         # for quality controls
+  if(!dir.exists(file.path(data_dir,datasetID,"_aligned")))
+    dir.create(file.path(data_dir,datasetID,"_aligned"))    # for aligned sam/bam/bai files
+  if(!dir.exists(file.path(data_dir,datasetID,"_quants")))
+    dir.create(file.path(data_dir,datasetID,"_quants"))     # for quantifications of expression
+  if(!dir.exists(file.path(data_dir,datasetID,"_report")))
+    dir.create(file.path(data_dir,datasetID,"_report"))     # well, for writing out reports
+  
+  # returns the unmodified object, so that the functions are ideally pipeable?
+  return(samplesinfo)
+}
+
+
+
+
+# this function fetches all the data for a single folder/project
+# expects a file called *SraRunInfo.csv
+#' Title
+#'
+#' @param samplesinfo 
+#' @param datasetID 
+#' @param data_dir 
+#' @param sra_runinfo 
+#' @param create_script 
+#' @param force 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_sradata <- function(samplesinfo,
+                        datasetID = samplesinfo$datasetID,
+                        data_dir = samplesinfo$data_dir,
+                        sra_runinfo = samplesinfo$runinfo, # to override?
+                        # samplenames_col = "SampleName",
+                        create_script = TRUE,
+                        
+                        force = FALSE) {
+  
+  # sri_file <- list.files(file.path(data_dir,datasetID),
+                         # pattern = "SraRunInfo.csv$", full.names = TRUE)
+  sri <- sra_runinfo
+  
+  # grab all the samples - can be that some are listed more than once and have different SRR
+  # samples <- unique(sri[, samplenames_col])
+  library_types <- sri$LibraryLayout
+  runs <- sri$Run
+  runs_dlpath <- sri$download_path
+  runs_files <- file.path(data_dir,datasetID,"_sra",paste0(runs,".sra"))
+  cmd <- paste0("wget -c -O ",runs_files," ",runs_dlpath)
+  out_bashscript <- file.path(data_dir,datasetID,paste0("cmd_batchretrieve_",unique(sri$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for data retrieval generated at ", out_bashscript)
+  }
+  
+  samplesinfo$files_sra <- runs_files
+  samplesinfo$cmd_sraretrieve <- cmd
+  
+  # sradata_out <- list(runs_files = runs_files, library_types = library_types, cmd = cmd, sri = sri,
+                      # datasetID = datasetID)        
+  
+  return(samplesinfo)
+  # system(cmd)
+
+}
+
+
+samplesinfo <- get_sradata(samplesinfo)
+
+
+
+
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param datasetID 
+#' @param data_dir 
+#' @param ncores 
+#' @param create_script 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+sra_to_fastq <- function(samplesinfo,
+                         datasetID = samplesinfo$datasetID,
+                         data_dir = samplesinfo$data_dir,
+                         ncores = 12,
+                         create_script = TRUE
+                         ) {
+  sra_files <- samplesinfo$files_sra
+  sra_libtypes <- samplesinfo$library_types
+  
+  param_set <- "--gzip --skip-technical"
+  
+  
+  outdir <- file.path(data_dir,datasetID,"_fastq")
+  
+  # fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip SRR_ID
+  # fastq-dump
+  
+  
+  # parallel-fastq-dump, highly recommended
+  # see https://github.com/rvalieris/parallel-fastq-dump
+  cmd <- paste("parallel-fastq-dump --threads",ncores,
+               param_set,
+               ifelse(sra_libtypes=="SINGLE","","--split-files"), # make it depend on the single libraries
+               "--outdir",outdir,"--sra-id",sra_files)
+  
+  out_bashscript <- file.path(data_dir,datasetID,paste0("cmd_batchfastqdump_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for dumping sra to fastq.gz generated at ", out_bashscript)
+  }                
+  # sratofastq_out <- list(sra_files = sra_files, library_types = sra_libtypes, cmd = cmd, sri = samplesinfo$sri,
+                         # datasetID = datasetID)                               
+  samplesinfo$cmd_fastqdump <- cmd
+  return(samplesinfo)
+  
+}
+
+samplesinfo <- sra_to_fastq(samplesinfo)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## this needs to be run once the file are dumped
+#' Title
+#'
+#' @param samplesinfo 
+#' @param data_dir 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+match_fastq <- function(samplesinfo,
+                        data_dir = samplesinfo$data_dir) {
+  files_sra <- samplesinfo$files_sra
+  sra_libtypes <- samplesinfo$runinfo$LibraryLayout
+  
+  allfastqs <- list.files(file.path(data_dir,samplesinfo$datasetID,"_fastq"),
+                          pattern = ".fastq.gz$",
+                          full.names = TRUE)
+  
+  # if libtype is single, one file is expected; otherwise it should be two
+  list_matchedfastqs <- lapply(seq_len(length(files_sra)), function(arg){
+    thissrafile <- basename(files_sra[arg])
+    thislib <- sra_libtypes[arg]
+    if(thislib=="SINGLE") {
+      # should be only one
+      single_fastq <- allfastqs[grep(gsub(".sra","",thissrafile),allfastqs)]
+      thisfastqfiles <- single_fastq
+    } else {
+      # should be two
+      paired_fastq <- allfastqs[grep(gsub(".sra","",thissrafile),allfastqs)]
+      thisfastqfiles <- list(r1 = paired_fastq[1], r2 = paired_fastq[2])
+    }
+    return(thisfastqfiles)
+    
+  }) 
+  names(list_matchedfastqs) <- gsub(".sra","",basename(files_sra))
+  # return(list_matchedfastqs)
+  samplesinfo[["files_fastq"]] <- list_matchedfastqs
+
+  return(samplesinfo)
+}
+
+samplesinfo <- match_fastq(samplesinfo)
+
+# add_fastqfiles <- function(samplesinfo,
+#                            matchedfastqs) {
+#   samplesinfo[["fastq_files"]] <- matchedfastqs
+#   return(samplesinfo)
+# }
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param fastqc_bin 
+#' @param fastqc_ncores 
+#' @param fastqc_dir 
+#' @param create_script 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_fastqc <- function(samplesinfo, # contains the locations of each file/file pair
+                       fastqc_bin = "fastqc",
+                       fastqc_ncores = 4,
+                       fastqc_dir = "_qc",
+                       create_script = TRUE
+                       ) {
+  all_fastqsamples <- unlist(samplesinfo$files_fastq)
+  fastqc_calls <- paste(fastqc_bin,
+                       "--threads", fastqc_ncores,
+                       "--outdir ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,fastqc_dir),
+                       all_fastqsamples
+                       )
+  names(fastqc_calls) <- names(all_fastqsamples)
+  
+  out_bashscript <- file.path(samplesinfo$data_dir,
+                              samplesinfo$datasetID,
+                              paste0("cmd_batchFastQCrun_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  cmd <- (fastqc_calls)
+  
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for running FastQC generated at ", out_bashscript)
+  }
+  
+  samplesinfo$cmd_fastqc <- cmd
+  
+  return(samplesinfo)
+}
+
+
+
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param salmon_bin 
+#' @param salmon_index 
+#' @param salmon_dir 
+#' @param salmon_ncores 
+#' @param salmon_nbootstraps 
+#' @param salmon_gcbias 
+#' @param create_script 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_salmon <- function(samplesinfo, # contains the locations of each file/file pair
+                       salmon_bin = "salmon",
+                       salmon_index,
+                       salmon_dir = "_quants",
+                       salmon_ncores = 12,
+                       salmon_nbootstraps = 100,
+                       salmon_gcbias = TRUE,
+                       create_script = TRUE
+                       ) {
+  N <- length(samplesinfo$files_sra)
+  salmon_calls <- lapply(seq_len(N), function (i){
+    this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    # this_fastqset <- 
+    if (this_libtype == "SINGLE") {
+      this_fastqset <- samplesinfo$files_fastq[[i]]
+      salmon_call <- paste(salmon_bin,"quant",
+                           "--threads",salmon_ncores,
+                           "--numBootstraps",salmon_nbootstraps,
+                           "--seqBias",salmon_gcbias,
+                           "--libType A",
+                           "--index", salmon_index,
+                           "-r",this_fastqset,
+                           "-o",file.path(samplesinfo$data_dir,samplesinfo$datasetID,salmon_dir,
+                                          paste0(names(samplesinfo$files_fastq)[i],"_salmon")))
+    } else if (this_libtype == "PAIRED"){
+      salmon_call <- paste(salmon_bin,"quant",
+                           "--threads",salmon_ncores,
+                           "--numBootstraps",salmon_nbootstraps,
+                           "--seqBias",salmon_gcbias,
+                           "--libType A",
+                           "--index", salmon_index,
+                           "-1",this_fastqset$r1,"-2",this_fastqset$r2,
+                           "-o",file.path(samplesinfo$data_dir,samplesinfo$datasetID,salmon_dir,
+                                          paste0(names(samplesinfo$files_fastq)[i],"_salmon")))
+    }
+    
+    
+    return(salmon_call)
+  })
+  names(salmon_calls) <- names(samplesinfo$files_fastq)
+  
+  out_bashscript <- file.path(samplesinfo$data_dir,
+                              samplesinfo$datasetID,
+                              paste0("cmd_batchsalmonrun_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  cmd <- unlist(salmon_calls)
+  
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for running salmon generated at ", out_bashscript)
+  }
+  
+  samplesinfo$cmd_salmon <- cmd
+  
+  
+  return(samplesinfo)
+}
+
+samplesinfo <- run_salmon(samplesinfo, ........)
+
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param kallisto_bin 
+#' @param kallisto_index 
+#' @param kallisto_dir 
+#' @param kallisto_ncores 
+#' @param kallisto_nbootstraps 
+#' @param kallisto_gcbias 
+#' @param create_script 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_kallisto <- function(samplesinfo, # contains the locations of each file/file pair
+                       kallisto_bin = "kallisto",
+                       kallisto_index,
+                       kallisto_dir = "_quants",
+                       kallisto_ncores = 12,
+                       kallisto_nbootstraps = 100,
+                       kallisto_gcbias = TRUE,
+                       create_script = TRUE
+                       ) {
+  N <- length(samplesinfo$files_sra)
+  kallisto_calls <- lapply(seq_len(N), function (i){
+    this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    if (this_libtype == "SINGLE") {
+      this_fastqset <- samplesinfo$files_fastq[[i]]
+      kallisto_call <- paste(kallisto_bin,"quant",
+                           "--threads",kallisto_ncores,
+                           "--bootstrap-samples",kallisto_nbootstraps,
+                           "--bias",kallisto_gcbias,
+                           "--index", kallisto_index,
+                           "--single -l 200 -s 30", # for single end this needs to be specified
+                           # think of having evtl. pseudobam too?
+                           "--output-dir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,kallisto_dir,
+                                          paste0(names(samplesinfo$files_fastq)[i],"_kallisto")),
+                           this_fastqset
+                           )
+    } else if (this_libtype == "PAIRED"){
+      kallisto_call <- paste(kallisto_bin,"quant",
+                           "--threads",kallisto_ncores,
+                           "--bootstrap-samples",kallisto_nbootstraps,
+                           "--bias",kallisto_gcbias,
+                           "--index", kallisto_index,
+                           # think of having evtl. pseudobam too?
+                           "--output-dir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,kallisto_dir,
+                                          paste0(names(samplesinfo$files_fastq)[i],"_kallisto")),
+                           this_fastqset$r1,this_fastqset$r2
+                           )
+    }
+    return(kallisto_call)
+  })
+  names(kallisto_calls) <- names(samplesinfo$files_fastq)
+  
+  out_bashscript <- file.path(samplesinfo$data_dir,
+                              samplesinfo$datasetID,
+                              paste0("cmd_batchkallistorun_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  cmd <- unlist(kallisto_calls)
+  
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for running kallisto generated at ", out_bashscript)
+  }
+  
+  samplesinfo$cmd_kallisto <- cmd
+  
+  return(samplesinfo)
+}
+
+
+
+#' Title
+#'
+#' @param samplesinfo 
+#' @param star_bin 
+#' @param star_index 
+#' @param star_gtffile 
+#' @param star_sjdboverhang 
+#' @param star_dir 
+#' @param star_ncores 
+#' @param create_script 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+run_STAR <- function(samplesinfo, # contains the locations of each file/file pair
+                       star_bin = "STAR",
+                       star_index,
+                       star_gtffile,
+                       star_sjdboverhang = 100,  
+                       star_dir = "_aligned",
+                       star_ncores = 12,
+                       create_script = TRUE) {
+  N <- length(samplesinfo$files_sra)
+  star_calls <- lapply(seq_len(N), function (i){
+    this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    # this_fastqset <- 
+    if (this_libtype == "SINGLE") {
+      this_fastqset <- samplesinfo$files_fastq[[i]]
+      star_call <- paste0(star_bin,
+                         " --runThreadN ",star_ncores,
+                         " --genomeDir ",star_index,
+                         " --sjdbGTFfile ",star_gtffile, " --sjdbOverhang ",star_sjdboverhang,
+                         " --readFilesIn <(zcat ",this_fastqset,")",
+                         " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
+                                                           paste0(samplesinfo$runinfo$Run[i],"_")),
+                         " --outSAMtype BAM SortedByCoordinate")
+      
+      } else if (this_libtype == "PAIRED"){
+        this_fastqset <- samplesinfo$files_fastq[[i]]
+        star_call <- paste0(star_bin,
+                         " --runThreadN ",star_ncores,
+                         " --genomeDir ",star_index,
+                         " --sjdbGTFfile ",star_gtffile, " --sjdbOverhang ",star_sjdboverhang,
+                         " --readFilesIn <(zcat ",this_fastqset$r1,")", " <(zcat ",this_fastqset$r2,")",
+                         " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
+                                                           paste0(samplesinfo$runinfo$Run[i],"_")),
+                         " --outSAMtype BAM SortedByCoordinate")
+      }
+      return(star_call)
+  })
+  names(star_calls) <- names(samplesinfo$files_fastq)
+  
+  out_bashscript <- file.path(samplesinfo$data_dir,
+                              samplesinfo$datasetID,
+                              paste0("cmd_batchSTARrun_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  cmd <- unlist(star_calls)
+  
+  if(create_script) {
+    writeLines(cmd, con = out_bashscript)
+    message("Bash script for running salmon generated at ", out_bashscript)
+  }
+  
+  samplesinfo$cmd_STAR <- cmd
+  
+  return(samplesinfo)
+}
+
+
+
+quantify_salmon(rtype = rtype, files = files, 
+                          salmondir = salmondir, smp = smp,
+                          salmonbin = salmonbin, libtype = libtype, 
+salmonindex = salmonindex, bias = bias)
+quantify_salmon <- function(rtype, files, salmondir, smp, salmonbin, 
+                            libtype, salmonindex, bias = FALSE) {
+  if (!any(file.exists(c(paste0(salmondir, "/", smp, "/aux_info/meta_info.json"),
+                         paste0(salmondir, "/", smp, "/aux/meta_info.json"))))) {
+    if (rtype == "single") {
+      salmon <- sprintf("bash -c '%s quant -p 10 -l %s -i %s -r <(cat %s) -o %s %s'",
+                        salmonbin, 
+                        libtype,
+                        salmonindex,
+                        files, 
+                        paste0(salmondir, "/", smp),
+                        ifelse(bias, "--seqBias", ""))
+      system(salmon)
+    } else if (rtype == "paired") {
+      salmon <- sprintf("bash -c '%s quant -p 10 -l %s -i %s -1 <(cat %s) -2 <(cat %s) -o %s %s'",
+                        salmonbin, 
+                        libtype,
+                        salmonindex,
+                        files$f1,
+                        files$f2,
+                        paste0(salmondir, "/", smp),
+                        ifelse(bias, "--seqBias", ""))
+      system(salmon)
+    } 
+  } else {
+    message("Salmon has already been run for ", smp)
+  }
+}
+
+```
+
+
+```{r}
+# we can/could/should check the md5 hash of the downloaded sra files
+
+# one way of doing this: using vdb-validate from sra-toolkit
+# https://www.biostars.org/p/147148/
+
+validate_sra <- function(samplesinfo,
+                         nthreads = 4) {
+  stopifnot(!is.null(samplesinfo$runinfo))
+  stopifnot(!is.null(samplesinfo$files_sra))
+  
+  message("Checking that all sra files exist...")
+  allthere <- all(file.exists(samplesinfo$files_sra))
+  message(allthere)
+  if(!allthere)
+    message("Missing datasets:", samplesinfo$files_sra[!file.exists(samplesinfo$files_sra)])
+  
+  N <- length(samplesinfo$files_sra)
+  validate_calls <- lapply(seq_len(N), function (i) {
+    mycall <- paste0("vdb-validate ",samplesinfo$files_sra[i])
+    return(mycall)  
+  })
+  names(validate_calls) <- samplesinfo$runinfo$Run
+
+  if(nthreads > 1){
+    library(BiocParallel)
+    register(MulticoreParam(workers = nthreads))
+    myret <- unlist(bplapply(validate_calls,system))
+  } else {
+    myret <- unlist(lapply(validate_calls,system))
+  }
+  
+  if(all(myret == 0))
+    message("All files validated, YAY!")
+  else
+    message("Following files were not ok: ",
+            names(myret[myret != 0]))
+  
+  # add some info to the samplesinfo that we did perform validation
+  samplesinfo$validated_sra <- myret
+  return(samplesinfo)
+}
+
+```
+
+
+
+
+SRA535016
+GSE94384
+
+```{r}
+
+mydf <- data.table::fread("_db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab")
+
+
+mygeo_gse <- getGEO("GSE94384")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+# reverse checks via SRAdb
+library(SRAdb)
+sqlfile <- '_db/SRAmetadb.sqlite'
+sra_con <- dbConnect(SQLite(),sqlfile)
+
+myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
+myohmy2 <- getSRAinfo( mygeo_SRAoverview$Accession, sra_con)
+
+
+getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+
+mydf[grep("GSM2474455",mydf$Alias),]
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223045/SRR5223045.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223046/SRR5223046.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223047/SRR5223047.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223048/SRR5223048.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223049/SRR5223049.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223050/SRR5223050.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223051/SRR5223051.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223052/SRR5223052.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223053/SRR5223053.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223054/SRR5223054.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223055/SRR5223055.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223056/SRR5223056.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223057/SRR5223057.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR522/SRR5223058/SRR5223058.sra
+
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/006/SRR5223046/SRR5223046.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/007/SRR5223047/SRR5223047.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/008/SRR5223048/SRR5223048.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/009/SRR5223049/SRR5223049.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/000/SRR5223050/SRR5223050.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/001/SRR5223051/SRR5223051.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/002/SRR5223052/SRR5223052.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/003/SRR5223053/SRR5223053.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/004/SRR5223054/SRR5223054.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/005/SRR5223055/SRR5223055.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/006/SRR5223056/SRR5223056.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/007/SRR5223057/SRR5223057.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR522/008/SRR5223058/SRR5223058.fastq.gz
+
+```
+
+
+```{r}
+SRP118609 - https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP118609
+# activated platelets - RNAseq of Human platelets
+
+
+rs <- getSRAinfo ( c("SRP118609"), sra_con, sraType = "sra" )
+rs2 <- getFASTQinfo ( c("SRP118609"), sra_con)
+getSRAfile(rs2$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059498/SRR6059498.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059499/SRR6059499.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059500/SRR6059500.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR605/SRR6059501/SRR6059501.sra
+
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/008/SRR6059498/SRR6059498.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/009/SRR6059499/SRR6059499.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/000/SRR6059500/SRR6059500_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/000/SRR6059500/SRR6059500_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/001/SRR6059501/SRR6059501_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR605/001/SRR6059501/SRR6059501_2.fastq.gz
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP003815
+# RNA-sequencing analysis of human platelet rRNA-depleted total RNA from two normal males and one female. The goal of this experiment was to identify genes expressed in unstimulated circulating platelets. Data from platelet polyA-mRNA has also been deposited at ArrayExpress, under accession number E-MTAB-715, https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-715/ 
+Next Generation Sequencing Analysis of Human Platelet polyA+ mRNAs and rRNA-depleted total RNA. Kissopoulou A, Jonasson J, Lindahl TL, Osman A.
+.
+
+getSRAinfo ( c("ERP003815"), sra_con, sraType = "sra" )
+getFASTQinfo ( c("ERP003815"), sra_con )
+
+getSRAinfo ( "E-MTAB-715", sra_con, sraType = "sra" )
+getSRAinfo ( "ERP000803", sra_con, sraType = "sra" )
+getFASTQinfo ( "ERP000803", sra_con )
+ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR039/ERR039697/ERR039697.fastq.gz
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335311/ERR335311.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335312/ERR335312.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR335/ERR335313/ERR335313.sra 
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR039/ERR039697/ERR039697.sra
+
+1 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335311/ERR335311.fastq.gz
+2 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335312/ERR335312.fastq.gz
+3 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR335/ERR335313/ERR335313.fastq.gz
+
+
+
+
+
+SRP119431 - https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP119431
+# Genome-wide RNA-seq analysis of human and mouse platelet transcriptomes
+
+rs <- getSRAinfo ( c("SRP119431"), sra_con, sraType = "sra" )
+rs2 <- getFASTQinfo ( c("SRP119431"), sra_con)
+getSRAfile(rs2$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131685/SRR6131685.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131686/SRR6131686.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131687/SRR6131687.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR613/SRR6131688/SRR6131688.sra
+
+1 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/005/SRR6131685/SRR6131685_1.fastq.gz
+2 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/005/SRR6131685/SRR6131685_2.fastq.gz
+3 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/006/SRR6131686/SRR6131686_1.fastq.gz
+4 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/006/SRR6131686/SRR6131686_2.fastq.gz
+5 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/007/SRR6131687/SRR6131687_1.fastq.gz
+6 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/007/SRR6131687/SRR6131687_2.fastq.gz
+7 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/008/SRR6131688/SRR6131688_1.fastq.gz
+8 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR613/008/SRR6131688/SRR6131688_2.fastq.gz
+
+
+
+GSE100242 - https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE100242
+# Maass PG, Glažar P, Memczak S, Dittmar G et al. A map of human circular RNAs in clinically relevant tissues. J Mol Med (Berl) 2017 Nov;95(11):1179-1189. PMID: 28842720
+
+
+mygeo_gse <- getGEO("GSE100242")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+# reverse checks via SRAdb
+# SRP109805
+library(SRAdb)
+sqlfile <- '_db/SRAmetadb.sqlite'
+sra_con <- dbConnect(SQLite(),sqlfile)
+
+myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
+getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
+getFASTQinfo ( mygeo_SRAoverview$Accession, sra_con)
+
+getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715083/SRR5715083.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715084/SRR5715084.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715085/SRR5715085.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715086/SRR5715086.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715087/SRR5715087.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715088/SRR5715088.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715089/SRR5715089.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715090/SRR5715090.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715091/SRR5715091.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715092/SRR5715092.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715093/SRR5715093.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715094/SRR5715094.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715095/SRR5715095.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715096/SRR5715096.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715097/SRR5715097.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715098/SRR5715098.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715099/SRR5715099.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715100/SRR5715100.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715101/SRR5715101.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715102/SRR5715102.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715103/SRR5715103.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715104/SRR5715104.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715105/SRR5715105.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR571/SRR5715106/SRR5715106.sra
+
+
+
+
+
+
+
+GSE74246 - https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE74246
+
+Corces MR, Buenrostro JD, Wu B, Greenside PG et al. Lineage-specific and single-cell chromatin accessibility charts human hematopoiesis and leukemia evolution. Nat Genet 2016 Oct;48(10):1193-203. PMID: 27526324
+
+
+
+
+
+
+
+
+SRA062032
+bray- The complex transcriptional landscape of the anucleate human platelet
+
+rs <- getSRAinfo ( c("SRA062032"), sra_con, sraType = "sra" )
+rs2 <- getFASTQinfo ( c("SRA062032"), sra_con)
+getSRAfile(rs2$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR627/SRR627520/SRR627520.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628222/SRR628222.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628233/SRR628233.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628234/SRR628234.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628235/SRR628235.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628237/SRR628237.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628238/SRR628238.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628239/SRR628239.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628240/SRR628240.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628241/SRR628241.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628243/SRR628243.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR628/SRR628244/SRR628244.sra
+
+
+1  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR627/SRR627520/SRR627520.fastq.gz
+2  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628222/SRR628222.fastq.gz
+3  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628233/SRR628233.fastq.gz
+4  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628234/SRR628234.fastq.gz
+5  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628235/SRR628235.fastq.gz
+6  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628237/SRR628237.fastq.gz
+7  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628238/SRR628238.fastq.gz
+8  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628239/SRR628239.fastq.gz
+9  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628240/SRR628240.fastq.gz
+10 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628241/SRR628241.fastq.gz
+11 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628243/SRR628243.fastq.gz
+12 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR628/SRR628244/SRR628244.fastq.gz
+
+-> add this too?
+  https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE50858
+
+
+# londin 2014 The human platelet: strong transcriptome correlations among individuals associate weakly with the platelet proteome
+SRP028846 and GSE50858
+mygeo_gse <- getGEO("GSE50858")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+# reverse checks via SRAdb
+# SRP109805
+library(SRAdb)
+sqlfile <- '_db/SRAmetadb.sqlite'
+sra_con <- dbConnect(SQLite(),sqlfile)
+
+getFASTQinfo( "SRP028846", sra_con, srcType = 'ftp' )
+SRP028846
+
+myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
+getSRAinfo( "SRP028846", sra_con)
+getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957099/SRR957099.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957100/SRR957100.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957101/SRR957101.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957102/SRR957102.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957103/SRR957103.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957104/SRR957104.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957108/SRR957108.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957109/SRR957109.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957110/SRR957110.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR957/SRR957111/SRR957111.sra
+
+
+# best 2015
+RNA-seq of tumor-educated platelets enables blood-based pan-cancer, multiclass and molecular pathway cancer diagnostics
+Identifiers: SRA: SRP057500
+BioProject: PRJNA281708
+GEO: GSE68086
+SRA260904
+
+
+
+
+# looney 2017
+http://www.ncbi.nlm.nih.gov/sra?term=SRP097794
+SRP097794
+
+getSRAinfo( "SRP097794", sra_con)
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571012/SRR5571012.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571014/SRR5571014.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571015/SRR5571015.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571016/SRR5571016.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571017/SRR5571017.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR557/SRR5571018/SRR5571018.sra
+
+
+
+# best 2017
+GEO: GSE89843
+SRP093349
+Study Type: Transcriptome Analysis
+Submission: SRA493919
+
+getSRAinfo( "SRP093349", sra_con)
+
+
+Characterization of the platelet transcriptome by RNA sequencing in patients with acute myocardial infarction.
+Identifiers: 
+SRA:SRP053296
+BioProject:PRJNA274751
+GEO:GSE65705
+Submission: SRA236686
+Characterization of the platelet transcriptome by RNA sequencing in patients with acute myocardial infarction. Eicher 2016
+
+getSRAinfo( "SRP053296", sra_con)
+
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792677/SRR1792677.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792678/SRR1792678.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792679/SRR1792679.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792680/SRR1792680.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792681/SRR1792681.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792682/SRR1792682.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792683/SRR1792683.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792684/SRR1792684.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792685/SRR1792685.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792686/SRR1792686.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792687/SRR1792687.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792688/SRR1792688.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792689/SRR1792689.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792690/SRR1792690.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792691/SRR1792691.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792692/SRR1792692.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792693/SRR1792693.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792694/SRR1792694.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792695/SRR1792695.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792696/SRR1792696.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792697/SRR1792697.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792699/SRR1792699.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792700/SRR1792700.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792701/SRR1792701.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792702/SRR1792702.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792704/SRR1792704.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792705/SRR1792705.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792706/SRR1792706.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792707/SRR1792707.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792708/SRR1792708.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792709/SRR1792709.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR179/SRR1792710/SRR1792710.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2981913/SRR2981913.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2981929/SRR2981929.sra
+
+
+
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP058654
+Circular RNAs are enriched in anucleate platelets and are a signature of transcriptome degradation
+Identifiers: 
+SRA:
+SRP058654
+BioProject:
+PRJNA284775
+GEO:
+GSE69192
+
+mygeo_gse <- getGEO("GSE69192")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+
+myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
+getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR203/SRR2038798/SRR2038798.sra
+
+
+
+
+# Ribosome profiling of human platelets, reticulocytes, and in vitro cell lines
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE85864
+
+mygeo_gse <- getGEO("GSE85864")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+
+myohmy <- getFASTQinfo( mygeo_SRAoverview$Accession, sra_con, srcType = 'ftp' )
+getSRAinfo ( mygeo_SRAoverview$Accession, sra_con, sraType = "sra" )
+getFASTQinfo ( mygeo_SRAoverview$Accession, sra_con)
+
+getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045263/SRR4045263.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045264/SRR4045264.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045265/SRR4045265.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045266/SRR4045266.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045267/SRR4045267.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045268/SRR4045268.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045269/SRR4045269.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045270/SRR4045270.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045271/SRR4045271.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045272/SRR4045272.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045273/SRR4045273.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045274/SRR4045274.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045275/SRR4045275.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045276/SRR4045276.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045277/SRR4045277.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045278/SRR4045278.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045279/SRR4045279.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045280/SRR4045280.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045281/SRR4045281.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045282/SRR4045282.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045283/SRR4045283.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045284/SRR4045284.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045285/SRR4045285.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045286/SRR4045286.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045287/SRR4045287.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045288/SRR4045288.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045289/SRR4045289.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045290/SRR4045290.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045291/SRR4045291.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045292/SRR4045292.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045293/SRR4045293.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR404/SRR4045294/SRR4045294.sra
+
+
+
+
+
+
+
+
+
+
+A GWAS sequence variant for platelet volume marks an alternative DNM3 promoter in megakaryocytes near a MEIS1 binding site. Sylvia T. Nurnberg; Augusto Rendon; Peter A. Smethurst; Dirk S. Paul; Katrin Voss; Jonathan N. Thon; Heather Lloyd-Jones; Jennifer G. Sambrook; Marloes R. Tijssen; Joseph E. Italiano; Panos Deloukas; Berthold Gottgens; Nicole Soranzo; Willem H. Ouwehand. Blood 120(24):4859 (2012), Europe PMC 22972982
+A GWAS sequence variant for platelet volume marks an alternative DNM3 promoter in megakaryocytes near a MEIS1 binding site. Nurnberg ST, Rendon A, Smethurst PA, Paul DS, Voss K, Thon JN, Lloyd-Jones H, Sambrook JG, Tijssen MR, HaemGen Consortium, Italiano JE Jr, Deloukas P, Gottgens B, Soranzo N, Ouwehand WH. Blood 120(24):4859-4868 (2012), Europe PMC 22972982
+
+E-MTAB-918
+
+ENA - ERP001115
+https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-918/
+
+getFASTQinfo( "ERP001115", sra_con)
+getSRAinfo( "ERP001115", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR065/ERR065725/ERR065725.sra
+
+
+
+
+
+
+
+
+http://www.jimmunol.org/content/early/2017/11/22/jimmunol.1700885
+Granzyme A in Human Platelets Regulates the Synthesis of Proinflammatory Cytokines by Monocytes in Aging
+Robert A. Campbell, Zechariah Franks, Anish Bhatnagar, Jesse W. Rowley, Bhanu K. Manne, Mark A. Supiano, Hansjorg Schwertz, Andrew S. Weyrich and Matthew T. Rondina
+SRA2779748
+getFASTQinfo("SRA2779748", sra_con)
+getSRAinfo ("SRA2779748", sra_con, sraType = "sra" )
+
+The sequences presented in this article have been submitted to Gene Expression Omnibus under accession number SRA2779748. Fastq files have been submitted to the Sequence Read Archive under accession numbers SRR5907423–SRR5907428.
+
+diy_accs <- paste0("SRR",5907423:5907428)
+
+getFASTQinfo(diy_accs, sra_con)
+getSRAinfo(diy_accs, sra_con, sraType = "sra" )
+getSRAinfo("SRA597146", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907423/SRR5907423.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907424/SRR5907424.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907425/SRR5907425.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907426/SRR5907426.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907427/SRR5907427.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907428/SRR5907428.sra
+
+
+
+
+
+
+
+
+
+https://www.thieme-connect.com/products/ejournals/pdf/10.1160/TH16-11-0873.pdf
+
+# data not provided!
+
+
+
+
+
+
+https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6148/
+
+ERP104860
+E-MTAB-6148 - RNA-seq of platelets derived from blood of healthy human donors in response to physiological stimuli collagen or Thrombin Receptor Activating Peptide compared to untreated controls
+
+getFASTQinfo("ERP104860", sra_con)
+getSRAinfo("ERP104860", sra_con, sraType = "sra" )
+
+# returning error!
+
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/000/ERR2179070/ERR2179070_1.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/000/ERR2179070/ERR2179070_2.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/001/ERR2179071/ERR2179071_1.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/001/ERR2179071/ERR2179071_2.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/002/ERR2179072/ERR2179072_1.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/002/ERR2179072/ERR2179072_2.fastq.gz 
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2179073/ERR2179073_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2179073/ERR2179073_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/004/ERR2179074/ERR2179074_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/004/ERR2179074/ERR2179074_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/005/ERR2179075/ERR2179075_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/005/ERR2179075/ERR2179075_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/006/ERR2179076/ERR2179076_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/006/ERR2179076/ERR2179076_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/007/ERR2179077/ERR2179077_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/007/ERR2179077/ERR2179077_2.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/008/ERR2179078/ERR2179078_1.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/008/ERR2179078/ERR2179078_2.fastq.gz
+
+
+
+
+
+# https://www.ncbi.nlm.nih.gov/sra?term=SRX1132832
+
+# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1403192
+
+# SRR2144270
+# SRR2144271
+# https://www.ebi.ac.uk/ena/data/view/SRX1132832 - to retrieve directly the fastq.gz from ENA
+
+
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR214/000/SRR2144270/SRR2144270.fastq.gz
+wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR214/001/SRR2144271/SRR2144271.fastq.gz
+
+mygeo_gse <- getGEO("GSE58202")[[1]]
+mygeo_runs <- rownames(phenoData(mygeo_gse))
+mygeo_runslist <- lapply(mygeo_runs, getGEO)
+mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
+
+mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
+mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
+
+
+myohmy <- getFASTQinfo( "SRP062023", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP062023", sra_con, sraType = "sra" )
+getFASTQinfo ( "SRP062023", sra_con)
+
+# getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144269/SRR2144269.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144270/SRR2144270.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144271/SRR2144271.sra
+
+
+
+
+
+
+
+http://heart.bmj.com/content/101/Suppl_4/A102.2
+
+  
+  
+  
+
+
+
+# maybe relevant for other stuff?
+
+SRP071547
+Dynamic gene regulatory networks of human myeloid differentiation [RNA-seq]
+
+We utilize gene expression and open chromatin footprinting data to build a gene regulatory network of key transcription factors that capture the cell and time-specific regulatory programs specified during human myeloid differentiation. Overall design: RNA-seq profiling of undifferentiated HL-60, differentiating macrophage, neutrophil, monocyte, and monocyte-derived macrophage cells.
+Center Project: GSE79044
+
+
+
+
+
+
+
+?????
+https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP092389
+We here systematically studied the interaction network of bone marrow cells. To this end, we micro-dissected many small interacting structures (cell doublets, triplets etc.) into single cells, and sequenced their mRNAs, to infer cell identity. After grouping the cells into cell types (based on the single-cell transcriptomes), we identified actual physical interactions that occurred more, or less, than what would be expected by chance. Overall design: After mild dissociation of the bone marrow or fetal liver, we micro-dissected many small interacting structures (cell doublets, triplets etc.) into single cells, and sequenced their mRNAs. We also sorted single bone marrow cells. Finally we sorted 2000 or single neutrophils (Gr1+ CD115-) from control or megakaryocyte depleted mice.
+
+myohmy <- getFASTQinfo( "SRP092389", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP092389", sra_con, sraType = "sra" )
+getFASTQinfo ( "SRP092389", sra_con)
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778497/SRR4778497.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778498/SRR4778498.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778499/SRR4778499.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778501/SRR4778501.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778502/SRR4778502.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778504/SRR4778504.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778505/SRR4778505.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778506/SRR4778506.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778508/SRR4778508.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778509/SRR4778509.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778510/SRR4778510.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778511/SRR4778511.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778513/SRR4778513.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778514/SRR4778514.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778515/SRR4778515.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778516/SRR4778516.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778518/SRR4778518.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778519/SRR4778519.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778520/SRR4778520.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778521/SRR4778521.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778522/SRR4778522.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778524/SRR4778524.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778525/SRR4778525.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778526/SRR4778526.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778527/SRR4778527.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778528/SRR4778528.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778529/SRR4778529.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778530/SRR4778530.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778531/SRR4778531.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778532/SRR4778532.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778533/SRR4778533.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778534/SRR4778534.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778535/SRR4778535.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778536/SRR4778536.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778537/SRR4778537.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778538/SRR4778538.sra
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP061548
+    Beauchemin H, Shooshtarizadeh P, Vadnais C, Vassen L et al. <i>Gfi1b</i> controls integrin signaling-dependent cytoskeleton dynamics and organization in megakaryocytes. Haematologica 2017 Mar;102(3):484-497. PMID: 28082345
+
+    
+myohmy <- getFASTQinfo( "SRP061548", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP061548", sra_con, sraType = "sra" )
+getFASTQinfo ( "SRP061548", sra_con)
+        
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125989/SRR2125989.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125990/SRR2125990.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125991/SRR2125991.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125992/SRR2125992.sra
+
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP043469
+    Meinders M, Kulu DI, van de Werken HJ, Hoogenboezem M et al. Sp1/Sp3 transcription factors regulate hallmarks of megakaryocyte maturation and platelet formation and function. Blood 2015 Mar 19;125(12):1957-67. PMID: 25538045
+
+    
+    
+myohmy <- getFASTQinfo( "SRP043469", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP043469", sra_con, sraType = "sra" )
+getFASTQinfo ( "SRP043469", sra_con)
+    
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427476/SRR1427476.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427477/SRR1427477.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427478/SRR1427478.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427479/SRR1427479.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427480/SRR1427480.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427481/SRR1427481.sra
+
+
+    
+    
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP071090
+
+Hematopoietic stem cells (HSC) sustain long-term reconstitution of hematopoiesis in primary transplantation recipients. Few HSC can serially reconstitute secondary recipients, and their identity and contribution to normal hematopoiesis remain moot. We directed transgene expression to a distinct fraction of HSC in the adult bone marrow. Epxression of the reporter transgene segregated with reconstituting activity during secondary transplantations. The labeled cells had an undifferentiated phenotype and expression profile, were slow-cycling and localized to the vascular niche. Inducible genetic labeling showed the transgene-expressing HSC gave rise to other cells within the HSC populations, confirming their top position in the differentiation hierarchy. Importantly, labeled HSC gave rise to more than two-thirds of all myeloid cells and platelets in adult mice, and this contribution could be further accelerated by interferon response. Thus, the rare "top-level" HSC with serial reconstitution capacity also serve as the major source of endogenous hematopoiesis in adult animals.
+
+myohmy <- getFASTQinfo( "SRP071090", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP071090", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201291/SRR3201291.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201292/SRR3201292.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201293/SRR3201293.sra
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP067232
+SRA316083
+Abstract: 
+Purpose: The aim of this study is to determine the relative expresson levels of mRNA transcripts in wild type platelets Methods: Total RNA was extracted and purified from purified platelets from BALB/c male mice (3 independent samples). Platelet purification was performed as described in Josefsson EC et al, Journal of Experimental Medicine (2011) 208:2017-31. Total RNA (100 ng) was used to generate sequencing libraries for whole transcriptome analysis following Illumina’s TruSeq RNA v2 sample preparation protocol. Completed libraries were sequenced on HiSeq 2000 with TruSeq SBS Kit v3- HS reagents (Illumina) as 100 bp paired-end reads at the Australian Genome Research Facility (AGRF), Melbourne. Reads were aligned to the mouse reference genome mm10 and counts for known genes were obtained using the Rsubread package (version 1.18.0) (Liao et al. 2013; Liao et al. 2014). Overall design: Total RNA was extracted and purified from purified platelets from BALB/c male mice (3 independent samples per population).
+Center Project: 
+GSE75896
+myohmy <- getFASTQinfo( "SRP067232", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP067232", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985188/SRR2985188.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985189/SRR2985189.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985190/SRR2985190.sra
+
+
+
+
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP009260
+
+myohmy <- getFASTQinfo( "ERP009260", sra_con, srcType = 'ftp' )
+getSRAinfo ( "ERP009260", sra_con, sraType = "sra" )
+
+Abdimajid Osman
+Ion Torrent Proton
+Pathogen reduction (PR) systems are used for prevention of infectious agents in blood components such as platelets, but have also shown to increase bleeding in some clinical studies. PR cross-link and damage nucleic acids of pathogens. Here, we show that Intercept (amotosalen + ultraviolet-A [UVA] light) significantly alter the platelet transcriptome. We used the RNA-Seq approach and analyzed transcriptomes of five platelet groups. We found that platelets treated with Intercept significantly changed the expression of more than 1000 genes (p<0.05) relative to the untreated, control platelets. In contrast, platelets treated with the Mirasol PR system (riboflavin + UVB light), or subjected to gamma-irradiation did not show these effects. A cluster of more than 170 mRNAs were identified that were differentially expressed at P<0.001. A vast majority of these transcripts were down-regulated at >2 folds. We also found the SSP+ additive solution present in Intercept constitutes a partial, though small, effect on the platelet transcriptome. We conclude that Intercept significantly affects and interferes the platelet transcriptome, a finding that coincides with previously reported studies showing that Intercept induces platelet activation, impaired platelet aggregation, reduced platelet mean volume, increased release of platelet microparticles and down-regulation of microRNAs in platelets.
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875269/ERR875269.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875270/ERR875270.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875271/ERR875271.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875272/ERR875272.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875273/ERR875273.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875274/ERR875274.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875275/ERR875275.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875276/ERR875276.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875277/ERR875277.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875278/ERR875278.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875279/ERR875279.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875280/ERR875280.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875281/ERR875281.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875282/ERR875282.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875283/ERR875283.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875284/ERR875284.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875285/ERR875285.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875286/ERR875286.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875287/ERR875287.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875288/ERR875288.sra 
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP004316
+
+We performed microRNA sequencing (miRNA-seq) according to Illumina sequencing protocols. Platelet-rich plasma (PRP) has been obtained by centrifuging whole blood at 160 x g for 15 min at room temperature. Platelets have been activated with 3 different physiologic agonists, namely ADP (20uM), collagen (60ug/mL), or Thrombin Receptor Activating Peptide (TRAP 25uM) under continuous stirring. An aliquot of platelets has been obtained at 120 minutes following ADP, collagen and TRAP and then processed to determine miRNA expression profiles. Time 0, indicating samples before any agonist treatment, was used as baseline. Total RNA was extracted by using mirVana Paris kit (life technologies) and then was subjected to size selection library preparation and retrotranscribed. Obtained cDNA was sequenced with the Illumina HiSeq 1000 sequencer .
+miRNA expression profile in platelets after ex vivo activation
+
+myohmy <- getFASTQinfo( "ERP004316", sra_con, srcType = 'ftp' )
+getSRAinfo ( "ERP004316", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747965/ERR747965.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747966/ERR747966.sra 
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747967/ERR747967.sra 
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP048290
+
+small RNA analysis in human platelets stored in blood bank
+Human platelets collected from healthy donors according to standard international protocols were pooled and stored at 4ºC during 7 days. The small RNA population changes across the days were evaluated by NGS aproach. Overall design: The smallRNA population was evaluated at fresh platelets and after 1 day, 2 days, 3 days, 4 days, 5 days and 7 days of storage at 4ºC.
+Center Project: 
+GSE61856
+External Link: 
+The miRNA Profile of Platelets Stored in a Blood Bank and Its Relation to Cellular Damage from Storage.
+
+myohmy <- getFASTQinfo( "SRP048290", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP048290", sra_con, sraType = "sra" )
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592244/SRR1592244.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592245/SRR1592245.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592246/SRR1592246.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592247/SRR1592247.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592248/SRR1592248.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592249/SRR1592249.sra
+
+
+
+
+
+https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP034558
+
+Homo sapiens Platelets Short
+See Genome Information for Homo sapiens
+Navigate Across
+35860 additional projects are related by organism.
+Platelets Short
+myohmy <- getFASTQinfo( "SRP034558", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP034558", sra_con, sraType = "sra" )
+ABI_SOLID (AB SOLiD 4 System)
+
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051481/SRR1051481.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051482/SRR1051482.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051483/SRR1051483.sra
+wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051484/SRR1051484.sra
+
+
+
+
+
+
+
+
+https://www.ncbi.nlm.nih.gov/sra?term=SRP015945
+Circulating Breast Tumor Cells Exhibit Dynamic Changes in Epithelial and Mesenchymal Cell Composition
+By applying RNA-ISH and RNAseq to circulating tumor cells (CTCs), the study provides definitive evidence of epithelial to mesenchymal transition (EMT) across all histological types of breast cancer, identifying mediators such as FOXC1 and TGF-ß signaling, and demonstrating dynamic treatment-associated changes in EMT within clusters of CTCs. Overall design: Epithelial to mesenchymal transition (EMT) has been postulated to contribute to the migration and dissemination of cancer cells, but supporting histopathological evidence is limited. We used a microfluidic device to isolate circulating tumor cells (CTCs), combined with multiplex fluorescent RNA-in-situ hybridization (ISH) and RNA sequencing, to quantify and characterize EMT in breast cancer cells within the bloodstream. Whereas only rare (0.1-10%) cells in the primary tumor expressed both mesenchymal and epithelial markers, such biphenotypic as well as purely mesenchymal cells were enriched among CTCs, across all histological subtypes of breast cancer. In an index patient followed longitudinally, fluctuation in epithelial and mesenchymal states was observed as a function of initial response and subsequent resistance to therapy. Mesenchymal markers were predominant in clusters of tumor cells, many of which had adherent platelets. Finally, RNA sequencing of CTC clusters identified TGF-ß and other EMT-related signatures, which were absent from more epithelial CTCs. FOXC1, a known regulator of EMT, was abundantly expressed in mesenchymal CTCs and was detectable within localized regions of the primary breast tumor. Together, these data support a role for EMT in the blood-borne dissemination of breast cancer and point to the dynamic nature of this cell fate change.
+myohmy <- getFASTQinfo( "SRP015945", sra_con, srcType = 'ftp' )
+getSRAinfo ( "SRP015945", sra_con, sraType = "sra" )
+
+
+
+
+    
+https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE42249
+
+https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE24674
+
+
+
+
+
+
+Grover, A., Sanjuan-Pla, A., Thongjuea, S. et al. "Single-cell RNA sequencing reveals molecular and functional platelet bias of aged haematopoietic stem cells" Nature Communications (2016): 11,075
+
+
+
+
+
+https://www.ncbi.nlm.nih.gov/pubmed/25903651
+
+
+
+
+http://www.tandfonline.com/doi/full/10.1080/20013078.2018.1424473
+
+SRP118609
+
+--> this is the uni giessen dataset!
+
+Circular RNAs are highly abundant in platelets
+
+Since circular RNAs constitute promising new biomarker candidates [25 Meng S, Zhou H, Feng Z, et al. CircRNA: functions and properties of a novel potential biomarker for cancer. Mol Cancer. 2017;16(1):94. [Google Scholar]], we examined their expression in human hematopoietic cells, based on available RNA-seq data from ribosomal-RNA-depleted total RNA (European Nucleotide Archive and NCBI Sequence Read Archive): whole blood (SRP029990), monocytes (ERP005301), macrophages (ERX326139), T cells (ERX326142) and megakaryocytes (ERX326138). In addition, we generated our own data based on two RNA-seq libraries of ribosomal RNA-depleted total RNA from human platelets, comparing resting state and after activation by TRAP-6 (Thrombin Receptor Activator Peptide-6). CircRNA abundance was determined based on the read counts of circRNA-specific back-splice junctions (for alignment statistics, see Supplementary Table S1).
+
+
+
+
+
+https://platelets.group.cam.ac.uk/publications ?
+
+
+  
+  
+  
+http://www.bloodjournal.org/content/121/19/3908.long?sso-checked=true
+
+
+http://www.bloodjournal.org/content/118/7/1903.long
+
+
+https://www.sciencedirect.com/science/article/pii/S1873506115000665?via%3Dihub
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE60941
+
+
+
+http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0183042
+Data Availability: Data have been deposited at Gene Expression Omnibus (GEO) under accession number GSE94292. -> microarray!
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+# as in https://www.biostars.org/p/244150/
+accessions_SRA_file <- "ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/SRA_Accessions.tab"
+
+download.file(accessions_SRA_file,paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".tab"))
+
+# accessions_SRA <- readr::read_tsv(accessions_SRA_file)
+
+
+grep '^SRR' _db/SRA_Accessions_SNAPSHOT_2018-01-31.tab | grep 'GSM' > _db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab
+
+# insert header as first line
+# Accession       Submission      Status  Updated Published       Received        Type    Center  Visibility      Alias   Experiment      Sample  Study   Loaded  Spots   Bases   Md5sum  BioSample     BioProject      ReplacedBy
+sed -i "1i\
+$(head -n 1 _db/SRA_Accessions_SNAPSHOT_2018-01-31.tab)" _db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab
+
+
+
+mydf <- data.table::fread("_db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab")
+# colnames(mydf) <- dbListFields(sraacc_con,name = "SRAaccs")
+
+
+
+# to be done once
+mydf <- data.table::fread("SRA_Accessions_SNAPSHOT_2018-01-31.tab")
+library(DBI)
+mySRAaccessiondb <- dbConnect(RSQLite::SQLite(), paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".sqlite"))
+dbWriteTable(mySRAaccessiondb, "SRAaccs", mydf)
+
+# to use it:
+sraacc_con <- dbConnect(SQLite(),paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".sqlite"))
+dbListTables(sraacc_con)
+
+dbListFields(sraacc_con,name = "SRAaccs")
+
+dbGetQuery(sraacc_con, 'SELECT * FROM SRAaccs WHERE "Alias" == :x', 
+  params = list(x = "GSM2474455"))
+```
+
+```{r}
+library(SRAdb)
+sqlfile <- '_db/SRAmetadb.sqlite'
+if(!file.exists('_db/SRAmetadb.sqlite')) sqlfile <<- getSRAdbFile()
+sra_con <- dbConnect(SQLite(),sqlfile)
+getFASTQinfo( c("SRR000648","SRR000657"), sra_con, srcType = 'ftp' )
+getFASTQinfo( c("SRX2532222"), sra_con, srcType = 'ftp' )
+getFASTQinfo( c("SRR343051"), sra_con, srcType = 'ftp' )
+getSRAfile( c("SRR343051"), sra_con, fileType = 'fastq' )
+getSRAfile( c("SRR343051"), sra_con, fileType = 'sra',destDir = "_sra" )
+
+sraFiles <- getFASTQinfo( c("SRR343051"), sra_con, srcType = 'ftp' )
+
+method = "curl"
+fnames <- sraFiles$ftp
+
+fileinfo = NULL
+    for (i in fnames) {
+      f_reads <- gsub(".fastq.gz","_1.fastq.gz",i)
+      r_reads <- gsub(".fastq.gz","_2.fastq.gz",i)  
+      download.file(f_reads, destfile = file.path(destDir, basename(f_reads)), method = method)
+      download.file(r_reads, destfile = file.path(destDir, basename(r_reads)), method = method)
+    }
+
+
+get.fastq.urls <- function(df) {
+    url <- rep(NA, length(df$run))
+    for(i in 1:length(df$run)) {
+        run <- df$run[i]
+        filename <- paste0(df$run[i],".fastq.gz")
+        if(nchar(run) < 10) {
+            url[i] <- file.path('ftp://ftp.sra.ebi.ac.uk/vol1/fastq',
+                                substring(run, 1, 6), run, filename)
+        } else {
+            dir2 <- paste( c(rep(x='0', 12-nchar(run)), substring(run, 10, 
+                                                                  nchar(run))), collapse = '' )
+            url[i] <- file.path('ftp://ftp.sra.ebi.ac.uk/vol1/fastq', 
+                                substring(run, 1, 6), dir2, run, filename)
+        }  
+    }
+    return(url)
+}
+
+```
+
+```{r}
+rs <- getSRA( search_terms = "platelets",out_types = c('run','study'), sra_con )
+```
+
+# retrieve info programmatically
+
+# retrieve the whole refs and annotations
+
+```{r}
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/gtf/homo_sapiens/Homo_sapiens.GRCh38.91.gtf.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.gtf.gz
+
+wget -c ftp://ftp.ensembl.org/pub/release-91/gff3/homo_sapiens/Homo_sapiens.GRCh38.91.gff3.gz
+wget -c ftp://ftp.ensembl.org/pub/release-91/gff3/mus_musculus/Mus_musculus.GRCm38.91.gff3.gz
+
+```
+
+# Generating indices for all programs and utils to be used
+
+```{shell}
+gunzip *dna.primary_assembly.fa.gz
+gunzip *gtf.gz
+gunzip *gff3.gz
+gunzip *fa.gz
+
+
+mkdir _ref/index_STAR_hs_GRCh38.91
+STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_hs_GRCh38.91 \
+--genomeFastaFiles _ref/Homo_sapiens.GRCh38.dna.primary_assembly.fa \
+--sjdbGTFfile _ref/Homo_sapiens.GRCh38.91.gtf --sjdbOverhang 100 # as default value, works for range of cases
+
+mkdir _ref/index_STAR_mm_GRCm38.91
+STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRCm38.91 \
+--genomeFastaFiles _ref/Mus_musculus.GRCm38.dna.primary_assembly.fa \
+--sjdbGTFfile _ref/Mus_musculus.GRCm38.91.gtf --sjdbOverhang 100 # as default value, works for range of cases
+
+
+conda install -c bioconda ucsc-gtftogenepred  ucsc-genepredtobed
+conda install -c bioconda ucsc-bedgraphtobigwig ucsc-bedtobigbed ucsc-bedgraphtobigwig ucsc-bigwiginfo ucsc-bigwigtobedgraph ucsc-bedtobigbed ucsc-bigbedtobed ucsc-bigwigtowig ucsc-bigwigsummary
+
+# gtf to genePred formats, as well as to refFlat, and also to bed
+gtfToGenePred -genePredExt -geneNameAsName2 _ref/Homo_sapiens.GRCh38.91.gtf refFlat.tmp.txt
+paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/Homo_sapiens.GRCh38.91.refFlat.txt
+
+gtfToGenePred -genePredExt -geneNameAsName2 _ref/Mus_musculus.GRCm38.91.gtf refFlat.tmp.txt
+paste <(cut -f 12 refFlat.tmp.txt) <(cut -f 1-10 refFlat.tmp.txt) > _ref/Mus_musculus.GRCm38.91.refFlat.txt
+
+gtfToGenePred _ref/Homo_sapiens.GRCh38.91.gtf _ref/Homo_sapiens.GRCh38.91.genePred
+gtfToGenePred _ref/Mus_musculus.GRCm38.91.gtf _ref/Mus_musculus.GRCm38.91.genePred
+
+genePredToBed _ref/Homo_sapiens.GRCh38.91.genePred _ref/Homo_sapiens.GRCh38.91.bed
+genePredToBed _ref/Mus_musculus.GRCm38.91.genePred _ref/Mus_musculus.GRCm38.91.bed
+
+
+
+# salmon indices
+cat Homo_sapiens.GRCh38.cdna.all.fa Homo_sapiens.GRCh38.ncrna.fa > Homo_sapiens.GRCh38.cdna.ncrna.fa
+cat Mus_musculus.GRCm38.cdna.all.fa Mus_musculus.GRCm38.ncrna.fa > Mus_musculus.GRCm38.cdna.ncrna.fa
+
+salmon index -t Homo_sapiens.GRCh38.cdna.ncrna.fa -i index_salmon_hs_GRCh38.91_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t Mus_musculus.GRCm38.cdna.ncrna.fa -i index_salmon_mm_GRCm38.91_cdna.ncrna.sidx --type quasi -k 31
+
+# kallisto indices
+
+kallisto index --index=index_kallisto_hs_GRCh38.91_cdna.ncrna.kidx -k 31 Homo_sapiens.GRCh38.cdna.ncrna.fa
+kallisto index --index=index_kallisto_mm_GRCm38.91_cdna.ncrna.kidx -k 31 Mus_musculus.GRCm38.cdna.ncrna.fa
+
+## Path to the kallisto binary
+kallistobin <- "/usr/local/software/kallisto_linux-v0.44.0/kallisto"
+kallistoversion <- "0.44"
+
+## Human cDNA & ncRNA + ERCC
+cmd <- sprintf("bash -c '%s index -i %s %s'",
+               kallistobin,
+               gsub("cdna.all.fa$", paste0(human_ensembl_version,
+                                           ".cdna.ncrna.ercc92.", kallistoversion,
+                                           ".kidx"), human_cdna_fa),
+               paste0("<(cat ", human_cdna_fa, " ", human_ncrna_fa, " ", ercc_fa, ")"))
+cmd
+system(cmd)
+
+
+```
+
+
+
+
+
+
+# retrieve datasets too?
+
+# combine all info together
+
