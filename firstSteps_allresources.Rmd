@@ -214,55 +214,6 @@ getSRAinfo( "SRP093349", sra_con)
 
 
 
-A GWAS sequence variant for platelet volume marks an alternative DNM3 promoter in megakaryocytes near a MEIS1 binding site. Sylvia T. Nurnberg; Augusto Rendon; Peter A. Smethurst; Dirk S. Paul; Katrin Voss; Jonathan N. Thon; Heather Lloyd-Jones; Jennifer G. Sambrook; Marloes R. Tijssen; Joseph E. Italiano; Panos Deloukas; Berthold Gottgens; Nicole Soranzo; Willem H. Ouwehand. Blood 120(24):4859 (2012), Europe PMC 22972982
-A GWAS sequence variant for platelet volume marks an alternative DNM3 promoter in megakaryocytes near a MEIS1 binding site. Nurnberg ST, Rendon A, Smethurst PA, Paul DS, Voss K, Thon JN, Lloyd-Jones H, Sambrook JG, Tijssen MR, HaemGen Consortium, Italiano JE Jr, Deloukas P, Gottgens B, Soranzo N, Ouwehand WH. Blood 120(24):4859-4868 (2012), Europe PMC 22972982
-
-E-MTAB-918
-
-ENA - ERP001115
-https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-918/
-
-getFASTQinfo( "ERP001115", sra_con)
-getSRAinfo( "ERP001115", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR065/ERR065725/ERR065725.sra
-
-
-
-
-
-
-
-
-http://www.jimmunol.org/content/early/2017/11/22/jimmunol.1700885
-Granzyme A in Human Platelets Regulates the Synthesis of Proinflammatory Cytokines by Monocytes in Aging
-Robert A. Campbell, Zechariah Franks, Anish Bhatnagar, Jesse W. Rowley, Bhanu K. Manne, Mark A. Supiano, Hansjorg Schwertz, Andrew S. Weyrich and Matthew T. Rondina
-SRA2779748
-getFASTQinfo("SRA2779748", sra_con)
-getSRAinfo ("SRA2779748", sra_con, sraType = "sra" )
-
-The sequences presented in this article have been submitted to Gene Expression Omnibus under accession number SRA2779748. Fastq files have been submitted to the Sequence Read Archive under accession numbers SRR5907423–SRR5907428.
-
-diy_accs <- paste0("SRR",5907423:5907428)
-
-getFASTQinfo(diy_accs, sra_con)
-getSRAinfo(diy_accs, sra_con, sraType = "sra" )
-getSRAinfo("SRA597146", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907423/SRR5907423.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907424/SRR5907424.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907425/SRR5907425.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907426/SRR5907426.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907427/SRR5907427.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR590/SRR5907428/SRR5907428.sra
-
-
-
-
-
-
-
-
 
 https://www.thieme-connect.com/products/ejournals/pdf/10.1160/TH16-11-0873.pdf
 
@@ -273,69 +224,7 @@ https://www.thieme-connect.com/products/ejournals/pdf/10.1160/TH16-11-0873.pdf
 
 
 
-https://www.ebi.ac.uk/arrayexpress/experiments/E-MTAB-6148/
 
-ERP104860
-E-MTAB-6148 - RNA-seq of platelets derived from blood of healthy human donors in response to physiological stimuli collagen or Thrombin Receptor Activating Peptide compared to untreated controls
-
-getFASTQinfo("ERP104860", sra_con)
-getSRAinfo("ERP104860", sra_con, sraType = "sra" )
-
-# returning error!
-
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/000/ERR2179070/ERR2179070_1.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/000/ERR2179070/ERR2179070_2.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/001/ERR2179071/ERR2179071_1.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/001/ERR2179071/ERR2179071_2.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/002/ERR2179072/ERR2179072_1.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/002/ERR2179072/ERR2179072_2.fastq.gz 
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2179073/ERR2179073_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/003/ERR2179073/ERR2179073_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/004/ERR2179074/ERR2179074_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/004/ERR2179074/ERR2179074_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/005/ERR2179075/ERR2179075_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/005/ERR2179075/ERR2179075_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/006/ERR2179076/ERR2179076_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/006/ERR2179076/ERR2179076_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/007/ERR2179077/ERR2179077_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/007/ERR2179077/ERR2179077_2.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/008/ERR2179078/ERR2179078_1.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR217/008/ERR2179078/ERR2179078_2.fastq.gz
-
-
-
-
-
-# https://www.ncbi.nlm.nih.gov/sra?term=SRX1132832
-
-# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1403192
-
-# SRR2144270
-# SRR2144271
-# https://www.ebi.ac.uk/ena/data/view/SRX1132832 - to retrieve directly the fastq.gz from ENA
-
-
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR214/000/SRR2144270/SRR2144270.fastq.gz
-wget -c ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR214/001/SRR2144271/SRR2144271.fastq.gz
-
-mygeo_gse <- getGEO("GSE58202")[[1]]
-mygeo_runs <- rownames(phenoData(mygeo_gse))
-mygeo_runslist <- lapply(mygeo_runs, getGEO)
-mygeo_allGSM <- unlist(lapply(mygeo_runslist,function(arg) arg@header$geo_accession))
-
-mygeo_allSRR <- lapply(mygeo_allGSM, function(arg) mydf[grep(arg,mydf$Alias),])
-mygeo_SRAoverview <- do.call(rbind,mygeo_allSRR)
-
-
-myohmy <- getFASTQinfo( "SRP062023", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP062023", sra_con, sraType = "sra" )
-getFASTQinfo ( "SRP062023", sra_con)
-
-# getSRAfile(myohmy$run, sra_con, fileType = 'fastq' ,destDir = "_fastq")
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144269/SRR2144269.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144270/SRR2144270.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR214/SRR2144271/SRR2144271.sra
 
 
 
@@ -351,19 +240,9 @@ http://heart.bmj.com/content/101/Suppl_4/A102.2
 
 
 
-# maybe relevant for other stuff?
-
-SRP071547
-Dynamic gene regulatory networks of human myeloid differentiation [RNA-seq]
-
-We utilize gene expression and open chromatin footprinting data to build a gene regulatory network of key transcription factors that capture the cell and time-specific regulatory programs specified during human myeloid differentiation. Overall design: RNA-seq profiling of undifferentiated HL-60, differentiating macrophage, neutrophil, monocyte, and monocyte-derived macrophage cells.
-Center Project: GSE79044
 
 
-
-
-
-
+# probably to REDO
 
 ?????
 https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP092389
@@ -373,252 +252,21 @@ myohmy <- getFASTQinfo( "SRP092389", sra_con, srcType = 'ftp' )
 getSRAinfo ( "SRP092389", sra_con, sraType = "sra" )
 getFASTQinfo ( "SRP092389", sra_con)
 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778497/SRR4778497.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778498/SRR4778498.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778499/SRR4778499.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778501/SRR4778501.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778502/SRR4778502.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778504/SRR4778504.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778505/SRR4778505.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778506/SRR4778506.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778508/SRR4778508.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778509/SRR4778509.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778510/SRR4778510.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778511/SRR4778511.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778513/SRR4778513.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778514/SRR4778514.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778515/SRR4778515.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778516/SRR4778516.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778518/SRR4778518.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778519/SRR4778519.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778520/SRR4778520.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778521/SRR4778521.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778522/SRR4778522.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778524/SRR4778524.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778525/SRR4778525.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778526/SRR4778526.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778527/SRR4778527.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778528/SRR4778528.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778529/SRR4778529.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778530/SRR4778530.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778531/SRR4778531.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778532/SRR4778532.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778533/SRR4778533.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778534/SRR4778534.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778535/SRR4778535.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778536/SRR4778536.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778537/SRR4778537.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR477/SRR4778538/SRR4778538.sra
 
 
 
 
-https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP061548
-    Beauchemin H, Shooshtarizadeh P, Vadnais C, Vassen L et al. <i>Gfi1b</i> controls integrin signaling-dependent cytoskeleton dynamics and organization in megakaryocytes. Haematologica 2017 Mar;102(3):484-497. PMID: 28082345
-
-    
-myohmy <- getFASTQinfo( "SRP061548", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP061548", sra_con, sraType = "sra" )
-getFASTQinfo ( "SRP061548", sra_con)
-        
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125989/SRR2125989.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125990/SRR2125990.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125991/SRR2125991.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR212/SRR2125992/SRR2125992.sra
-
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP043469
-    Meinders M, Kulu DI, van de Werken HJ, Hoogenboezem M et al. Sp1/Sp3 transcription factors regulate hallmarks of megakaryocyte maturation and platelet formation and function. Blood 2015 Mar 19;125(12):1957-67. PMID: 25538045
-
-    
-    
-myohmy <- getFASTQinfo( "SRP043469", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP043469", sra_con, sraType = "sra" )
-getFASTQinfo ( "SRP043469", sra_con)
-    
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427476/SRR1427476.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427477/SRR1427477.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427478/SRR1427478.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427479/SRR1427479.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427480/SRR1427480.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR142/SRR1427481/SRR1427481.sra
-
-
-    
     
 
 
 
-https://trace.ncbi.nlm.nih.gov/Traces/sra?study=SRP071090
-
-Hematopoietic stem cells (HSC) sustain long-term reconstitution of hematopoiesis in primary transplantation recipients. Few HSC can serially reconstitute secondary recipients, and their identity and contribution to normal hematopoiesis remain moot. We directed transgene expression to a distinct fraction of HSC in the adult bone marrow. Epxression of the reporter transgene segregated with reconstituting activity during secondary transplantations. The labeled cells had an undifferentiated phenotype and expression profile, were slow-cycling and localized to the vascular niche. Inducible genetic labeling showed the transgene-expressing HSC gave rise to other cells within the HSC populations, confirming their top position in the differentiation hierarchy. Importantly, labeled HSC gave rise to more than two-thirds of all myeloid cells and platelets in adult mice, and this contribution could be further accelerated by interferon response. Thus, the rare "top-level" HSC with serial reconstitution capacity also serve as the major source of endogenous hematopoiesis in adult animals.
-
-myohmy <- getFASTQinfo( "SRP071090", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP071090", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201291/SRR3201291.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201292/SRR3201292.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR320/SRR3201293/SRR3201293.sra
 
 
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP067232
-SRA316083
-Abstract: 
-Purpose: The aim of this study is to determine the relative expresson levels of mRNA transcripts in wild type platelets Methods: Total RNA was extracted and purified from purified platelets from BALB/c male mice (3 independent samples). Platelet purification was performed as described in Josefsson EC et al, Journal of Experimental Medicine (2011) 208:2017-31. Total RNA (100 ng) was used to generate sequencing libraries for whole transcriptome analysis following Illumina’s TruSeq RNA v2 sample preparation protocol. Completed libraries were sequenced on HiSeq 2000 with TruSeq SBS Kit v3- HS reagents (Illumina) as 100 bp paired-end reads at the Australian Genome Research Facility (AGRF), Melbourne. Reads were aligned to the mouse reference genome mm10 and counts for known genes were obtained using the Rsubread package (version 1.18.0) (Liao et al. 2013; Liao et al. 2014). Overall design: Total RNA was extracted and purified from purified platelets from BALB/c male mice (3 independent samples per population).
-Center Project: 
-GSE75896
-myohmy <- getFASTQinfo( "SRP067232", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP067232", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985188/SRR2985188.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985189/SRR2985189.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR298/SRR2985190/SRR2985190.sra
-
-
-
-
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP009260
-
-myohmy <- getFASTQinfo( "ERP009260", sra_con, srcType = 'ftp' )
-getSRAinfo ( "ERP009260", sra_con, sraType = "sra" )
-
-Abdimajid Osman
-Ion Torrent Proton
-Pathogen reduction (PR) systems are used for prevention of infectious agents in blood components such as platelets, but have also shown to increase bleeding in some clinical studies. PR cross-link and damage nucleic acids of pathogens. Here, we show that Intercept (amotosalen + ultraviolet-A [UVA] light) significantly alter the platelet transcriptome. We used the RNA-Seq approach and analyzed transcriptomes of five platelet groups. We found that platelets treated with Intercept significantly changed the expression of more than 1000 genes (p<0.05) relative to the untreated, control platelets. In contrast, platelets treated with the Mirasol PR system (riboflavin + UVB light), or subjected to gamma-irradiation did not show these effects. A cluster of more than 170 mRNAs were identified that were differentially expressed at P<0.001. A vast majority of these transcripts were down-regulated at >2 folds. We also found the SSP+ additive solution present in Intercept constitutes a partial, though small, effect on the platelet transcriptome. We conclude that Intercept significantly affects and interferes the platelet transcriptome, a finding that coincides with previously reported studies showing that Intercept induces platelet activation, impaired platelet aggregation, reduced platelet mean volume, increased release of platelet microparticles and down-regulation of microRNAs in platelets.
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875269/ERR875269.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875270/ERR875270.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875271/ERR875271.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875272/ERR875272.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875273/ERR875273.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875274/ERR875274.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875275/ERR875275.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875276/ERR875276.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875277/ERR875277.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875278/ERR875278.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875279/ERR875279.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875280/ERR875280.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875281/ERR875281.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875282/ERR875282.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875283/ERR875283.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875284/ERR875284.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875285/ERR875285.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875286/ERR875286.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875287/ERR875287.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR875/ERR875288/ERR875288.sra 
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=ERP004316
-
-We performed microRNA sequencing (miRNA-seq) according to Illumina sequencing protocols. Platelet-rich plasma (PRP) has been obtained by centrifuging whole blood at 160 x g for 15 min at room temperature. Platelets have been activated with 3 different physiologic agonists, namely ADP (20uM), collagen (60ug/mL), or Thrombin Receptor Activating Peptide (TRAP 25uM) under continuous stirring. An aliquot of platelets has been obtained at 120 minutes following ADP, collagen and TRAP and then processed to determine miRNA expression profiles. Time 0, indicating samples before any agonist treatment, was used as baseline. Total RNA was extracted by using mirVana Paris kit (life technologies) and then was subjected to size selection library preparation and retrotranscribed. Obtained cDNA was sequenced with the Illumina HiSeq 1000 sequencer .
-miRNA expression profile in platelets after ex vivo activation
-
-myohmy <- getFASTQinfo( "ERP004316", sra_con, srcType = 'ftp' )
-getSRAinfo ( "ERP004316", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747965/ERR747965.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747966/ERR747966.sra 
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/ERR/ERR747/ERR747967/ERR747967.sra 
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP048290
-
-small RNA analysis in human platelets stored in blood bank
-Human platelets collected from healthy donors according to standard international protocols were pooled and stored at 4ºC during 7 days. The small RNA population changes across the days were evaluated by NGS aproach. Overall design: The smallRNA population was evaluated at fresh platelets and after 1 day, 2 days, 3 days, 4 days, 5 days and 7 days of storage at 4ºC.
-Center Project: 
-GSE61856
-External Link: 
-The miRNA Profile of Platelets Stored in a Blood Bank and Its Relation to Cellular Damage from Storage.
-
-myohmy <- getFASTQinfo( "SRP048290", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP048290", sra_con, sraType = "sra" )
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592244/SRR1592244.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592245/SRR1592245.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592246/SRR1592246.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592247/SRR1592247.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592248/SRR1592248.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR159/SRR1592249/SRR1592249.sra
-
-
-
-
-
-https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP034558
-
-Homo sapiens Platelets Short
-See Genome Information for Homo sapiens
-Navigate Across
-35860 additional projects are related by organism.
-Platelets Short
-myohmy <- getFASTQinfo( "SRP034558", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP034558", sra_con, sraType = "sra" )
-ABI_SOLID (AB SOLiD 4 System)
-
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051481/SRR1051481.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051482/SRR1051482.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051483/SRR1051483.sra
-wget -c ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR105/SRR1051484/SRR1051484.sra
-
-
-
-
-
-
-
-
-https://www.ncbi.nlm.nih.gov/sra?term=SRP015945
-Circulating Breast Tumor Cells Exhibit Dynamic Changes in Epithelial and Mesenchymal Cell Composition
-By applying RNA-ISH and RNAseq to circulating tumor cells (CTCs), the study provides definitive evidence of epithelial to mesenchymal transition (EMT) across all histological types of breast cancer, identifying mediators such as FOXC1 and TGF-ß signaling, and demonstrating dynamic treatment-associated changes in EMT within clusters of CTCs. Overall design: Epithelial to mesenchymal transition (EMT) has been postulated to contribute to the migration and dissemination of cancer cells, but supporting histopathological evidence is limited. We used a microfluidic device to isolate circulating tumor cells (CTCs), combined with multiplex fluorescent RNA-in-situ hybridization (ISH) and RNA sequencing, to quantify and characterize EMT in breast cancer cells within the bloodstream. Whereas only rare (0.1-10%) cells in the primary tumor expressed both mesenchymal and epithelial markers, such biphenotypic as well as purely mesenchymal cells were enriched among CTCs, across all histological subtypes of breast cancer. In an index patient followed longitudinally, fluctuation in epithelial and mesenchymal states was observed as a function of initial response and subsequent resistance to therapy. Mesenchymal markers were predominant in clusters of tumor cells, many of which had adherent platelets. Finally, RNA sequencing of CTC clusters identified TGF-ß and other EMT-related signatures, which were absent from more epithelial CTCs. FOXC1, a known regulator of EMT, was abundantly expressed in mesenchymal CTCs and was detectable within localized regions of the primary breast tumor. Together, these data support a role for EMT in the blood-borne dissemination of breast cancer and point to the dynamic nature of this cell fate change.
-myohmy <- getFASTQinfo( "SRP015945", sra_con, srcType = 'ftp' )
-getSRAinfo ( "SRP015945", sra_con, sraType = "sra" )
-
-
-
-
+# chipseq?
     
 https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE42249
 
 https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE24674
-
-
-
-
-
-
-Grover, A., Sanjuan-Pla, A., Thongjuea, S. et al. "Single-cell RNA sequencing reveals molecular and functional platelet bias of aged haematopoietic stem cells" Nature Communications (2016): 11,075
-
-
-
-
-
-https://www.ncbi.nlm.nih.gov/pubmed/25903651
-
-
-
-
-http://www.tandfonline.com/doi/full/10.1080/20013078.2018.1424473
-
-SRP118609
-
---> this is the uni giessen dataset!
-
-Circular RNAs are highly abundant in platelets
-
-Since circular RNAs constitute promising new biomarker candidates [25 Meng S, Zhou H, Feng Z, et al. CircRNA: functions and properties of a novel potential biomarker for cancer. Mol Cancer. 2017;16(1):94. [Google Scholar]], we examined their expression in human hematopoietic cells, based on available RNA-seq data from ribosomal-RNA-depleted total RNA (European Nucleotide Archive and NCBI Sequence Read Archive): whole blood (SRP029990), monocytes (ERP005301), macrophages (ERX326139), T cells (ERX326142) and megakaryocytes (ERX326138). In addition, we generated our own data based on two RNA-seq libraries of ribosomal RNA-depleted total RNA from human platelets, comparing resting state and after activation by TRAP-6 (Thrombin Receptor Activator Peptide-6). CircRNA abundance was determined based on the read counts of circRNA-specific back-splice junctions (for alignment statistics, see Supplementary Table S1).
 
 
 
@@ -752,12 +400,4 @@ rs <- getSRA( search_terms = "platelets",out_types = c('run','study'), sra_con )
 
 # retrieve info programmatically
 
-
-
-
-
-
-# retrieve datasets too?
-
-# combine all info together
 
