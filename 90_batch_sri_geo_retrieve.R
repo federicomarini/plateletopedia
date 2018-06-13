@@ -968,11 +968,66 @@ if(all(samplesinfo_yu_maheswaran_2013$validated_sra == 0)) {
 
 
 
+## -------------------------------------------------------------------------- ##
+##  performing QC on all samples!  ----------------------------------
+## -------------------------------------------------------------------------- ##
+
+samplesinfo_files <- list.files("_samplesinfo",full.names = T, pattern = "samplesinfo_")
+for (i in samplesinfo_files) {
+  load(i)
+}
+
+## or 
+
+lapply(file_names,load,.GlobalEnv)
 
 
+samplesinfo_objects <- ls(pattern = "samplesinfo_.*_")
+# results <- sapply(samplesinfo_files, function(x) mget(load(x)), simplify = TRUE) 
+
+for (i in samplesinfo_objects) {
+  si <- get(i)
+  assign(i, run_fastqc_multiT(si,create_script = TRUE,force = TRUE))
+}
 
 
+writeLines(list.files(pattern = "cmd_batchFastQCrun_M",recursive = T))
 
+_publicdata/alhasan_jackson-circ_degradation-2016/cmd_batchFastQCrun_M_SRP058654.sh
+_publicdata/an_gallagher-erythroid_diff-2014/cmd_batchFastQCrun_M_SRP035312.sh
+_publicdata/beauchemin_moroy-megs_gfi1b-2017/cmd_batchFastQCrun_M_SRP061548.sh
+_publicdata/best_wurdinger-TEPs-2015/cmd_batchFastQCrun_M_SRP057500.sh
+_publicdata/boisset_vanoudenaarden-network_bonemarrow-2016/cmd_batchFastQCrun_M_SRP092389.sh
+_publicdata/bray_rigoutsos-complex_landscape-2013/cmd_batchFastQCrun_M_SRP017372.sh
+_publicdata/campbell_rondina-granzymea_platelets-2017/cmd_batchFastQCrun_M_SRP114983.sh
+_publicdata/cimmino_golino-mirna_modulation-2015/cmd_batchFastQCrun_M_ERP004316.sh
+_publicdata/delbridge_grabow-puma_ttp-2016/cmd_batchFastQCrun_M_SRP067232.sh
+_publicdata/duff_graveley-rnaseq_20humantissues-2015/cmd_batchFastQCrun_M_SRP056969.sh
+_publicdata/eicher_johnson-acute_mi-2016/cmd_batchFastQCrun_M_SRP053296.sh
+_publicdata/grover_nerlov-singlecell_hsc-2016/cmd_batchFastQCrun_M_SRP060557.sh
+_publicdata/illumina_bodymap2-2013/cmd_batchFastQCrun_M_ERP000546.sh
+_publicdata/kissopoulou_osman-polyA-2013/cmd_batchFastQCrun_M_ERP000803.sh
+_publicdata/kissopoulou_osman-ribo_depl-2013/cmd_batchFastQCrun_M_ERP003815.sh
+_publicdata/lefrancais_looney-lungs_bm-2017/cmd_batchFastQCrun_M_SRP097794.sh
+_publicdata/londin_rigoutsos-txome_proteome-2014/cmd_batchFastQCrun_M_SRP028846.sh
+_publicdata/maass_rajewsky-human_circ-2017/cmd_batchFastQCrun_M_SRP109805.sh
+_publicdata/meinders_philipsen-sp1sp3_hallmarks-2015/cmd_batchFastQCrun_M_SRP043469.sh
+_publicdata/mills_ingolia-pelo_decay-2017/cmd_batchFastQCrun_M_SRP098699.sh
+_publicdata/mills_ingolia-riboprofiling-2016/cmd_batchFastQCrun_M_SRP082436.sh
+_publicdata/nassa_tarallo-splicing_proteome-2018/cmd_batchFastQCrun_M_ERP104860.sh
+_publicdata/nurnberg_ouwehand-invitro_megs-2012/cmd_batchFastQCrun_M_ERP001115.sh
+_publicdata/osman_provost-pathogen_reduction-2015/cmd_batchFastQCrun_M_ERP009260.sh
+_publicdata/pontes_burbano-mirna_celldamage-2015/cmd_batchFastQCrun_M_SRP048290.sh
+_publicdata/preusser_bindereif-release_circ-2018/cmd_batchFastQCrun_M_SRP118609.sh
+_publicdata/ramirez_mortazavi-dynamic_myeloid-2017/cmd_batchFastQCrun_M_SRP071547.sh
+_publicdata/rowley_weyrich-human_mouse-2011/cmd_batchFastQCrun_M_SRP119431.sh
+_publicdata/sawai_reizis-hsc_multilineage-2016/cmd_batchFastQCrun_M_SRP071090.sh
+_publicdata/shi_weyrich-proteasome_platelets-2014/cmd_batchFastQCrun_M_SRP062023.sh
+_publicdata/soellner_simon-mouserat_atlas-2017/cmd_batchFastQCrun_M_ERP104395.sh
+_publicdata/szabo_salzman-human_fetaldevel-2015/cmd_batchFastQCrun_M_SRP051249.sh
+_publicdata/unigiessen-plt_activation-unp/cmd_batchFastQCrun_M_SRP118609.sh
+_publicdata/UNK_jefferson-human_plts-2013/cmd_batchFastQCrun_M_SRP034558.sh
+_publicdata/yu_maheswaran-circulating_tumor-2013/cmd_batchFastQCrun_M_SRP015945.sh
 
 
 
