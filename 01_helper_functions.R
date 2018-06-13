@@ -555,6 +555,57 @@ run_fastqc <- function(samplesinfo, # contains the locations of each file/file p
 }
 
 
+run_fastqc_multiT <- function(samplesinfo, # contains the locations of each file/file pair
+                       fastqc_bin = "fastqc",
+                       fastqc_ncores = 4,
+                       fastqc_dir = "_qc",
+                       create_script = TRUE,
+                       force = FALSE
+) {
+  # check that files are there and do exist
+  if(is.null(samplesinfo$files_fastq)) {
+    warning("No fastq files provided in the samplesinfo object!")
+    return(samplesinfo)
+  }
+  if(!all(file.exists(unlist(samplesinfo$files_fastq)))) {
+    warning("Not all fastq files of the samplesinfo object are actually existing!")
+    return(samplesinfo)
+  }
+  
+  ## TODO: check that the output is not already there
+  
+  all_fastqsamples <- unlist(samplesinfo$files_fastq)
+  # fastqc_calls <- paste(fastqc_bin,
+  #                       "\\ \n  --threads", fastqc_ncores,
+  #                       "\\ \n  --outdir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,fastqc_dir),
+  #                       "\\ \n ",paste(all_fastqsamples, collapse = " \\ \n  ")
+  # )
+  fastqc_calls <- paste(fastqc_bin,"--threads", fastqc_ncores,
+                        "--outdir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,fastqc_dir),
+                        paste(all_fastqsamples, collapse = " ")
+  )
+  # names(fastqc_calls) <- names(all_fastqsamples)
+  
+  out_bashscript <- file.path(samplesinfo$data_dir,
+                              samplesinfo$datasetID,
+                              paste0("cmd_batchFastQCrun_M_",unique(samplesinfo$runinfo$SRAStudy),".sh"))
+  # maybe prepend with shebang?
+  cmd <- (fastqc_calls)
+  
+  if(create_script) {
+    if(file.exists(out_bashscript) & !force) {
+      message("Bash script for running FastQC already available at ", out_bashscript)
+    } else {
+      writeLines(cmd, con = out_bashscript)
+      message("Bash script for running FastQC generated at ", out_bashscript)
+    }
+  } 
+  
+  samplesinfo$cmd_fastqc <- cmd
+  
+  return(samplesinfo)
+}
+
 
 
 
