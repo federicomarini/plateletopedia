@@ -642,7 +642,8 @@ run_fastqc_multiT <- function(samplesinfo, # contains the locations of each file
 #' samplesinfo <- run_salmon(samplesinfo)
 run_salmon <- function(samplesinfo, # contains the locations of each file/file pair
                        salmon_bin = "salmon",
-                       salmon_index,
+                       salmon_index_human,
+                       salmon_index_mouse, # both, to correctly handle sets with >1 species
                        salmon_dir = "_quants",
                        salmon_ncores = 12,
                        salmon_nbootstraps = 100,
@@ -664,6 +665,15 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
   N <- nrow(samplesinfo$runinfo)
   salmon_calls <- lapply(seq_len(N), function (i){
     this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    this_species <- samplesinfo$runinfo$ScientificName[i]
+    this_index <- if(this_species == "Homo sapiens") {
+      salmon_index_human
+    } else if(this_species == "Mus musculus") {
+      salmon_index_mouse
+    } else {
+      message("Found a dataset with a species currently not supported...")
+      return(paste("#",samplesinfo$runinfo$Run[i],"Found a dataset with a species currently not supported..."))
+    }
     # this_fastqset <- 
     if (this_libtype == "SINGLE") {
       this_fastqset <- samplesinfo$files_fastq[[i]]
@@ -672,7 +682,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                            "--numBootstraps",salmon_nbootstraps,
                            ifelse(salmon_gcbias, "--seqBias", ""),
                            "--libType A",
-                           "--index", salmon_index,
+                           "--index", this_index,
                            "-r",this_fastqset,
                            "-o",file.path(samplesinfo$data_dir,samplesinfo$datasetID,salmon_dir,
                                           paste0(names(samplesinfo$files_fastq)[i],"_salmon")))
@@ -683,7 +693,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                            "--numBootstraps",salmon_nbootstraps,
                            ifelse(salmon_gcbias, "--seqBias", ""),
                            "--libType A",
-                           "--index", salmon_index,
+                           "--index", this_index,
                            "-1",this_fastqset$r1,"-2",this_fastqset$r2,
                            "-o",file.path(samplesinfo$data_dir,samplesinfo$datasetID,salmon_dir,
                                           paste0(names(samplesinfo$files_fastq)[i],"_salmon")))
