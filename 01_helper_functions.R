@@ -650,7 +650,18 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                        create_script = TRUE,
                        force = FALSE
 ) {
-  N <- length(samplesinfo$files_sra)
+  # check that files are there and do exist
+  if(is.null(samplesinfo$files_fastq)) {
+    warning("No fastq files provided in the samplesinfo object!")
+    return(samplesinfo)
+  }
+  if(!all(file.exists(unlist(samplesinfo$files_fastq)))) {
+    warning("Not all fastq files of the samplesinfo object are actually existing!")
+    return(samplesinfo)
+  }
+  
+  
+  N <- nrow(samplesinfo$runinfo)
   salmon_calls <- lapply(seq_len(N), function (i){
     this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
     # this_fastqset <- 
@@ -665,7 +676,8 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                            "-r",this_fastqset,
                            "-o",file.path(samplesinfo$data_dir,samplesinfo$datasetID,salmon_dir,
                                           paste0(names(samplesinfo$files_fastq)[i],"_salmon")))
-    } else if (this_libtype == "PAIRED"){
+    } else if (this_libtype == "PAIRED"){      
+      this_fastqset <- samplesinfo$files_fastq[[i]]
       salmon_call <- paste(salmon_bin,"quant",
                            "--threads",salmon_ncores,
                            "--numBootstraps",salmon_nbootstraps,
@@ -690,7 +702,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
   
   if(create_script) {
     if(file.exists(out_bashscript) & !force) {
-      message("Bash script for running salmon generated at ", out_bashscript)
+      message("Bash script for running salmon already available at ", out_bashscript)
     } else {
       writeLines(cmd, con = out_bashscript)
       message("Bash script for running salmon generated at ", out_bashscript)
