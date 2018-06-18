@@ -761,7 +761,8 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
 #' samplesinfo <- run_kallisto(samplesinfo)
 run_kallisto <- function(samplesinfo, # contains the locations of each file/file pair
                          kallisto_bin = "kallisto",
-                         kallisto_index,
+                         kallisto_index_human,
+                         kallisto_index_mouse,
                          kallisto_dir = "_quants",
                          kallisto_ncores = 12,
                          kallisto_nbootstraps = 100,
@@ -772,13 +773,22 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
   N <- length(samplesinfo$files_sra)
   kallisto_calls <- lapply(seq_len(N), function (i){
     this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    this_species <- samplesinfo$runinfo$ScientificName[i]
+    this_index <- if(this_species == "Homo sapiens") {
+      kallisto_index_human
+    } else if(this_species == "Mus musculus") {
+      kallisto_index_mouse
+    } else {
+      message("Found a dataset with a species currently not supported...")
+      return(paste("#",samplesinfo$runinfo$Run[i],"Found a dataset with a species currently not supported..."))
+    }
     if (this_libtype == "SINGLE") {
       this_fastqset <- samplesinfo$files_fastq[[i]]
       kallisto_call <- paste(kallisto_bin,"quant",
                              "--threads",kallisto_ncores,
                              "--bootstrap-samples",kallisto_nbootstraps,
                              "--bias",kallisto_gcbias,
-                             "--index", kallisto_index,
+                             "--index", this_index,
                              "--single -l 200 -s 30", # for single end this needs to be specified
                              # think of having evtl. pseudobam too?
                              "--output-dir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,kallisto_dir,
@@ -790,7 +800,7 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
                              "--threads",kallisto_ncores,
                              "--bootstrap-samples",kallisto_nbootstraps,
                              "--bias",kallisto_gcbias,
-                             "--index", kallisto_index,
+                             "--index", this_index,
                              # think of having evtl. pseudobam too?
                              "--output-dir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,kallisto_dir,
                                                       paste0(names(samplesinfo$files_fastq)[i],"_kallisto")),
@@ -809,7 +819,7 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
   
   if(create_script) {
     if(file.exists(out_bashscript) & !force) {
-      message("Bash script for running kallisto generated at ", out_bashscript)
+      message("Bash script for running kallisto already available at ", out_bashscript)
     } else {
       writeLines(cmd, con = out_bashscript)
       message("Bash script for running kallisto generated at ", out_bashscript)
@@ -855,7 +865,8 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
 #' samplesinfo <- run_STAR(samplesinfo)
 run_STAR <- function(samplesinfo, # contains the locations of each file/file pair
                      star_bin = "star",
-                     star_index,
+                     star_index_human,
+                     star_index_mouse,
                      star_gtffile,
                      star_dir = "_aligned",
                      star_ncores = 12,
@@ -864,12 +875,21 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
   N <- length(samplesinfo$files_sra)
   star_calls <- lapply(seq_len(N), function (i){
     this_libtype <- samplesinfo$runinfo$LibraryLayout[i]
+    this_species <- samplesinfo$runinfo$ScientificName[i]
+    this_index <- if(this_species == "Homo sapiens") {
+      star_index_human
+    } else if(this_species == "Mus musculus") {
+      star_index_mouse
+    } else {
+      message("Found a dataset with a species currently not supported...")
+      return(paste("#",samplesinfo$runinfo$Run[i],"Found a dataset with a species currently not supported..."))
+    }
     # this_fastqset <- 
     if (this_libtype == "SINGLE") {
       this_fastqset <- samplesinfo$files_fastq[[i]]
       star_call <- paste0(star_bin,
                           " --runThreadN ",star_ncores,
-                          " --genomeDir ",star_index,
+                          " --genomeDir ",this_index,
                           " --sjdbGTFfile ",star_gtffile,
                           " --readFilesIn <(zcat ",this_fastqset,")",
                           " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
@@ -880,7 +900,7 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
       this_fastqset <- samplesinfo$files_fastq[[i]]
       star_call <- paste0(star_bin,
                           " --runThreadN ",star_ncores,
-                          " --genomeDir ",star_index,
+                          " --genomeDir ",this_index,
                           " --sjdbGTFfile ",star_gtffile,
                           " --readFilesIn <(zcat ",this_fastqset$r1,")", " <(zcat ",this_fastqset$r2,")",
                           " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
@@ -899,7 +919,7 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
   
   if(create_script) {
     if(file.exists(out_bashscript) & !force) {
-      message("Bash script for running STAR generated at ", out_bashscript)
+      message("Bash script for running STAR already available at ", out_bashscript)
     } else {
       writeLines(cmd, con = out_bashscript)
       message("Bash script for running STAR generated at ", out_bashscript)
