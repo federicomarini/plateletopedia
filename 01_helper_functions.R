@@ -612,11 +612,15 @@ run_fastqc_multiT <- function(samplesinfo, # contains the locations of each file
 #' Run salmon
 #' 
 #' Creates a script for running salmon and generating transcript-level quantifications
+#' 
+#' Providing two indices allows the handling of data sets where more than one species
+#' is available, without the need to split the set into smaller subsets
 #'
 #' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
 #' @param salmon_bin A string, with the location of the salmon binary. This needs to be 
 #' provided according to the local installation. Defaults to salmon, as installed via conda
-#' @param salmon_index A string, the location of the salmon index
+#' @param salmon_index_human A string, the location of the salmon index for human samples
+#' @param salmon_index_mouse A string, the location of the salmon index for mouse samples
 #' @param salmon_dir A string, where to store the output of the tool. Defaults to _quants,
 #' created via create_analysisfolders
 #' @param salmon_ncores A numeric value, with the number of cores to be used in the call
@@ -625,6 +629,7 @@ run_fastqc_multiT <- function(samplesinfo, # contains the locations of each file
 #' @param salmon_gcbias Logical, perform sequence-specific bias correction
 #' @param create_script Logical, whether to create the script - which needs to be run
 #' from the terminal at a later moment
+#' @param force 
 #'
 #' @return A samplesinfo-like list to store all the required info and steps. This object
 #' can be passed to the subsequent steps and further updated, thus containing all the 
@@ -734,11 +739,15 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
 #' Run kallisto
 #' 
 #' Creates a script for running kallisto and generating transcript-level quantifications
+#' 
+#' Providing two indices allows the handling of data sets where more than one species
+#' is available, without the need to split the set into smaller subsets
 #'
 #' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
 #' @param kallisto_bin A string, with the location of the kallisto binary. This needs to be 
 #' provided according to the local installation. Defaults to kallisto, as installed via conda
-#' @param kallisto_index A string, the location of the kallisto index
+#' @param kallisto_index_human A string, the location of the kallisto index for human samples
+#' @param kallisto_index_mouse A string, the location of the kallisto index for mouse samples
 #' @param kallisto_dir A string, where to store the output of the tool. Defaults to _quants,
 #' created via create_analysisfolders
 #' @param kallisto_ncores A numeric value, with the number of cores to be used in the call
@@ -854,11 +863,18 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
 #' 
 #' Creates a script for running STAR to align fastq raw files
 #'
+#' Providing two indices allows the handling of data sets where more than one species
+#' is available, without the need to split the set into smaller subsets
+#' 
 #' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
 #' @param star_bin A string, with the location of the STAR binary. This needs to be 
 #' provided according to the local installation. Defaults to star, as installed via conda
-#' @param star_index A string, the location of the STAR index
-#' @param star_gtffile A string, the location of the gtf annotation file to use in STAR
+#' @param star_index_human A string, the location of the STAR index for human samples
+#' @param star_index_mouse A string, the location of the STAR index for mouse samples
+#' @param star_gtffile_human A string, the location of the gtf annotation file to use in STAR
+#' for human samples
+#' @param star_gtffile_mouse A string, the location of the gtf annotation file to use in STAR
+#' for mouse samples
 #' @param star_dir A string, where to store the output of the tool. Defaults to _aligned,
 #' created via create_analysisfolders
 #' @param star_ncores A numeric value, with the number of cores to be used in the call
@@ -884,7 +900,8 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
                      star_bin = "star",
                      star_index_human,
                      star_index_mouse,
-                     star_gtffile,
+                     star_gtffile_human,
+                     star_gtffile_mouse,
                      star_dir = "_aligned",
                      star_ncores = 12,
                      create_script = TRUE,
@@ -915,13 +932,22 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
       message("Found a dataset with a species currently not supported...")
       return(paste("#",samplesinfo$runinfo$Run[i],"Found a dataset with a species currently not supported..."))
     }
+    
+    this_gtffile <- if(this_species == "Homo sapiens") {
+      star_gtffile_human
+    } else if(this_species == "Mus musculus") {
+      star_gtffile_mouse
+    } else {
+      # message("Found a dataset with a species currently not supported...")
+      return(paste("#",samplesinfo$runinfo$Run[i],"Found a dataset with a species currently not supported..."))
+    }
     # this_fastqset <- 
     if (this_libtype == "SINGLE") {
       this_fastqset <- samplesinfo$files_fastq[[i]]
       star_call <- paste0(star_bin,
                           " --runThreadN ",star_ncores,
                           " --genomeDir ",this_index,
-                          " --sjdbGTFfile ",star_gtffile,
+                          " --sjdbGTFfile ",this_gtffile,
                           " --readFilesIn <(zcat ",this_fastqset,")",
                           " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
                                                             paste0(samplesinfo$runinfo$Run[i],"_")),
@@ -932,7 +958,7 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
       star_call <- paste0(star_bin,
                           " --runThreadN ",star_ncores,
                           " --genomeDir ",this_index,
-                          " --sjdbGTFfile ",star_gtffile,
+                          " --sjdbGTFfile ",this_gtffile,
                           " --readFilesIn <(zcat ",this_fastqset$r1,")", " <(zcat ",this_fastqset$r2,")",
                           " --outFileNamePrefix ",file.path(samplesinfo$data_dir,samplesinfo$datasetID,star_dir,
                                                             paste0(samplesinfo$runinfo$Run[i],"_")),
