@@ -667,8 +667,11 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
   }
   
   # check existence of indices
-  stopifnot(dir.exists(salmon_index_human),"salmon index for human not found!")
-  stopifnot(dir.exists(salmon_index_mouse),"salmon index for mouse not found!")
+  if(!dir.exists(salmon_index_human))
+    stop("salmon index for human not found!")
+  if(!dir.exists(salmon_index_mouse))
+    stop("salmon index for mouse not found!")
+  
   
   N <- nrow(samplesinfo$runinfo)
   salmon_calls <- lapply(seq_len(N), function (i){
@@ -793,8 +796,10 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
   }
   
   # check existence of indices
-  stopifnot(file.exists(kallisto_index_human),"kallisto index for human not found!")
-  stopifnot(file.exists(kallisto_index_mouse),"kallisto index for mouse not found!")
+  if(!dir.exists(kallisto_index_human))
+    stop("kallisto index for human not found!")
+  if(!dir.exists(kallisto_index_mouse))
+    stop("kallisto index for mouse not found!")
   
   N <- length(samplesinfo$files_sra)
   kallisto_calls <- lapply(seq_len(N), function (i){
@@ -917,8 +922,11 @@ run_STAR <- function(samplesinfo, # contains the locations of each file/file pai
   }
   
   # check existence of indices
-  stopifnot(dir.exists(star_index_human),"star index for human not found!")
-  stopifnot(dir.exists(star_index_mouse),"star index for human not found!")
+  if(!dir.exists(star_index_human))
+    stop("STAR index for human not found!")
+  if(!dir.exists(star_index_mouse))
+    stop("STAR index for mouse not found!")
+  
   
   N <- length(samplesinfo$files_sra)
   star_calls <- lapply(seq_len(N), function (i){
