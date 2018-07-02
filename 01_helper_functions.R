@@ -796,9 +796,9 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
   }
   
   # check existence of indices
-  if(!dir.exists(kallisto_index_human))
+  if(!file.exists(kallisto_index_human))
     stop("kallisto index for human not found!")
-  if(!dir.exists(kallisto_index_mouse))
+  if(!file.exists(kallisto_index_mouse))
     stop("kallisto index for mouse not found!")
   
   N <- length(samplesinfo$files_sra)
@@ -818,7 +818,7 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
       kallisto_call <- paste(kallisto_bin,"quant",
                              "--threads",kallisto_ncores,
                              "--bootstrap-samples",kallisto_nbootstraps,
-                             "--bias",kallisto_gcbias,
+                             ifelse(kallisto_gcbias, "--bias", ""),
                              "--index", this_index,
                              "--single -l 200 -s 30", # for single end this needs to be specified
                              # think of having evtl. pseudobam too?
@@ -827,10 +827,11 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
                              this_fastqset
       )
     } else if (this_libtype == "PAIRED"){
+      this_fastqset <- samplesinfo$files_fastq[[i]]
       kallisto_call <- paste(kallisto_bin,"quant",
                              "--threads",kallisto_ncores,
                              "--bootstrap-samples",kallisto_nbootstraps,
-                             "--bias",kallisto_gcbias,
+                             ifelse(kallisto_gcbias, "--bias", ""),
                              "--index", this_index,
                              # think of having evtl. pseudobam too?
                              "--output-dir",file.path(samplesinfo$data_dir,samplesinfo$datasetID,kallisto_dir,
