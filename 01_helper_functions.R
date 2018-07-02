@@ -902,7 +902,7 @@ run_kallisto <- function(samplesinfo, # contains the locations of each file/file
 #' samplesinfo <- run_fastqc(samplesinfo)
 #' samplesinfo <- run_STAR(samplesinfo)
 run_STAR <- function(samplesinfo, # contains the locations of each file/file pair
-                     star_bin = "star",
+                     star_bin = "STAR",
                      star_index_human,
                      star_index_mouse,
                      star_gtffile_human,
