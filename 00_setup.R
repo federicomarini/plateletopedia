@@ -109,6 +109,46 @@ system("gunzip _ref/ENSEMBL_release92/*")
 
 
 
+
+## downloading the essential from the GENCODE project as well (https://www.gencodegenes.org/releases/current.html)
+
+# human
+dir.create("_ref/GENCODE_human_release28")
+dir.create("_ref/GENCODE_mouse_release17")
+
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz",
+  destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gtf.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gff3.gz",
+  destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gff3.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.transcripts.fa.gz",
+  destfile = "_ref/GENCODE_human_release28/gencode.v28.transcripts.fa.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/GRCh38.p12.genome.fa.gz",
+  destfile = "_ref/GENCODE_human_release28/GRCh38.p12.genome.fa.gz")
+
+
+
+# mouse
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.annotation.gtf.gz",
+  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gtf.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.annotation.gff3.gz",
+  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gff3.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.transcripts.fa.gz",
+  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.transcripts.fa.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/GRCm38.p6.genome.fa.gz",
+  destfile = "_ref/GENCODE_mouse_release17/GRCm38.p6.genome.fa.gz")
+
+
+system("gunzip _ref/GENCODE_human_release28/*")
+system("gunzip _ref/GENCODE_mouse_release17/*")
+
 ## -------------------------------------------------------------------------- ##
 ##  Installing the binaries of the tools that are required ------------------
 ## -------------------------------------------------------------------------- ##
@@ -160,6 +200,12 @@ salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i _ref
 # also with cdna only...
 salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa -i _ref/index_salmon_hs_GRCh38.92_cdna.sidx --type quasi -k 31
 salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa -i _ref/index_salmon_mm_GRCm38.92_cdna.sidx --type quasi -k 31
+
+# and why not, also with gencode transcripts
+salmon index -t _ref/GENCODE_human_release28/gencode.v28.transcripts.fa -i _ref/index_salmon_hs_gencode_28.sidx --type quasi -k 31
+salmon index -t _ref/GENCODE_mouse_release17/gencode.vM17.transcripts.fa -i _ref/index_salmon_mm_gencode_17.sidx --type quasi -k 31
+
+
 
 
 # kallisto indices
