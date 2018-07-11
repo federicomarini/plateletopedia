@@ -334,6 +334,7 @@ ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 txgenemap <- rbind(cdna_df, ncrna_df) # , ercc)
+colnames(txgenemap) <- c("TXNAME","GENEID","GENENAME")
 saveRDS(txgenemap, 
         file = "_ref/tx2gene_Homo_sapiens.GRCh38.92.cdna.ncrna.txgenemap.rds")
 
@@ -359,8 +360,37 @@ ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 txgenemap <- rbind(cdna_df, ncrna_df) # , ercc)
+colnames(txgenemap) <- c("TXNAME","GENEID","GENENAME")
 saveRDS(txgenemap, 
         file = "_ref/tx2gene_Mus_musculus.GRCm38.92.cdna.ncrna.txgenemap.rds")
+
+
+# Probably even more elegant, creating TxDb objects
+
+library(GenomicFeatures)
+
+gtf <- "_ref/GENCODE_human_release28/gencode.v28.annotation.gtf"
+txdb.filename <- "_ref/TxDb_gencode_human_v28_annotation.sqlite"
+txdb <- makeTxDbFromGFF(gtf)
+saveDb(txdb, txdb.filename)
+
+gtf <- "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gtf"
+txdb.filename <- "_ref/TxDb_gencode_mouse_v17_annotation.sqlite"
+txdb <- makeTxDbFromGFF(gtf)
+saveDb(txdb, txdb.filename)
+
+gtf <- "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf"
+txdb.filename <- "_ref/TxDb_ensembl_human_v92_annotation.sqlite"
+txdb <- makeTxDbFromGFF(gtf)
+saveDb(txdb, txdb.filename)
+
+gtf <- "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf"
+txdb.filename <- "_ref/TxDb_ensembl_mouse_v92_annotation.sqlite"
+txdb <- makeTxDbFromGFF(gtf)
+saveDb(txdb, txdb.filename)
+
+
+
 
 
 # Now, the GRanges objects
