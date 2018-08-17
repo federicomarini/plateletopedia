@@ -115,6 +115,7 @@ system("gunzip _ref/ENSEMBL_release92/*")
 # human
 dir.create("_ref/GENCODE_human_release28")
 dir.create("_ref/GENCODE_mouse_release17")
+dir.create("_ref/GENCODE_mouse_release18")
 
 download.file(
   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz",
@@ -132,6 +133,7 @@ download.file(
 
 
 # mouse
+## m17
 download.file(
   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.annotation.gtf.gz",
   destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gtf.gz")
@@ -145,9 +147,24 @@ download.file(
   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/GRCm38.p6.genome.fa.gz",
   destfile = "_ref/GENCODE_mouse_release17/GRCm38.p6.genome.fa.gz")
 
+## m18
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gtf.gz",
+  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gtf.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gff3.gz",
+  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gff3.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.transcripts.fa.gz",
+  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.transcripts.fa.gz")
+download.file(
+  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/GRCm38.p6.genome.fa.gz",
+  destfile = "_ref/GENCODE_mouse_release18/GRCm38.p6.genome.fa.gz")
+
 
 system("gunzip _ref/GENCODE_human_release28/*")
 system("gunzip _ref/GENCODE_mouse_release17/*")
+system("gunzip _ref/GENCODE_mouse_release18/*")
 
 ## -------------------------------------------------------------------------- ##
 ##  Installing the binaries of the tools that are required ------------------
