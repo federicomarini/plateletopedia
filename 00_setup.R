@@ -209,7 +209,7 @@ STAR --runThreadN 16 --runMode genomeGenerate --genomeDir _ref/index_STAR_mm_GRC
 --genomeFastaFiles _ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.fa \
 --sjdbGTFfile _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf --sjdbOverhang 100 # as default value, works for range of cases
 
-# salmon indices
+# salmon indices - this was done with version 0.9.1
 
 salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i _ref/index_salmon_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
 salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i _ref/index_salmon_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
@@ -221,6 +221,19 @@ salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa -i _ref/i
 # and why not, also with gencode transcripts
 salmon index -t _ref/GENCODE_human_release28/gencode.v28.transcripts.fa -i _ref/index_salmon_hs_gencode_28.sidx --type quasi -k 31
 salmon index -t _ref/GENCODE_mouse_release17/gencode.vM17.transcripts.fa -i _ref/index_salmon_mm_gencode_17.sidx --type quasi -k 31
+
+## salmon indices with recent version - according to the algorithm change...
+
+salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.ncrna.fa -i _ref/index_salmon_v0.11.2_hs_GRCh38.92_cdna.ncrna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.ncrna.fa -i _ref/index_salmon_v0.11.2_mm_GRCm38.92_cdna.ncrna.sidx --type quasi -k 31
+
+# also with cdna only...
+salmon index -t _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa -i _ref/index_salmon_v0.11.2_hs_GRCh38.92_cdna.sidx --type quasi -k 31
+salmon index -t _ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa -i _ref/index_salmon_v0.11.2_mm_GRCm38.92_cdna.sidx --type quasi -k 31
+
+# and why not, also with gencode transcripts
+salmon index -t _ref/GENCODE_human_release28/gencode.v28.transcripts.fa -i _ref/index_salmon_v0.11.2_hs_gencode_28.sidx --type quasi -k 31
+salmon index -t _ref/GENCODE_mouse_release18/gencode.vM18.transcripts.fa -i _ref/index_salmon_v0.11.2_mm_gencode_18.sidx --type quasi -k 31
 
 
 
