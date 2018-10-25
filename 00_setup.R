@@ -245,9 +245,15 @@ kallisto index --index=_ref/index_kallisto_mm_GRCm38.92_cdna.ncrna.kidx -k 31 _r
 
 
 ## -------------------------------------------------------------------------- ##
-##  Converting the annotation files to formats used by other tools ----------
+##  Converting the reference and annotation files to formats used by other tools ----------
 ## -------------------------------------------------------------------------- ##
 
+# converting fasta to 2bit format
+## require installation of kent tools faToTwoBit
+# wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/faToTwoBit
+chmod +x faToTwoBit
+./faToTwoBit _ref _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.dna.primary_assembly.fa _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.dna.primary_assembly.2bit
+./faToTwoBit _ref _ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.fa _ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.2bit
 
 
 # gtf to genePred formats, as well as to refFlat, and also to bed
