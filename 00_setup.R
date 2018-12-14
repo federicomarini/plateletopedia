@@ -415,6 +415,11 @@ txdb.filename <- "_ref/TxDb_gencode_mouse_v17_annotation.sqlite"
 txdb <- makeTxDbFromGFF(gtf)
 saveDb(txdb, txdb.filename)
 
+gtf <- "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gtf"
+txdb.filename <- "_ref/TxDb_gencode_mouse_v18_annotation.sqlite"
+txdb <- makeTxDbFromGFF(gtf)
+saveDb(txdb, txdb.filename)
+
 gtf <- "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf"
 txdb.filename <- "_ref/TxDb_ensembl_human_v92_annotation.sqlite"
 txdb <- makeTxDbFromGFF(gtf)
