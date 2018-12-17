@@ -392,6 +392,49 @@ match_fastq <- function(samplesinfo,
 }
 
 
+mergetech_fastq <- function(samplesinfo,
+                            data_dir = samplesinfo$data_dir,
+                            run_commands = TRUE) {
+  
+  samplenames <- samplesinfo$runinfo$SampleName
+  message("Found ", length(unique(samplenames)), " different samples in the ", nrow(samplesinfo$runinfo), " runs...")
+  
+  aftermerging <- vector("list", length(unique(samplenames)))
+  aftermerging_names <- character(length(unique(samplenames)))
+  for(i in 1:length(unique(samplenames))){
+    corresp_fastq <- samplesinfo$files_fastq[which(samplenames == unique(samplenames)[i])]
+    if(length(corresp_fastq) >= 2) {
+      merged_file <- file.path(samplesinfo$data_dir,samplesinfo$datasetID,"_fastq",
+                               paste0(paste0(names(corresp_fastq),collapse = "-"),".fastq.gz"))
+      merge_cmd <- paste("cat", 
+                         paste(corresp_fastq, collapse = " "),
+                         ">", merged_file
+      )
+      message(merge_cmd)
+      file.exists(merged_file)
+      # if(run_commands) {
+      # system(merge_cmd)
+      # }
+      # once done, remove originals?
+      
+      aftermerge_samplename <- file.path(samplesinfo$data_dir,samplesinfo$datasetID,"_fastq",
+                                         paste0(paste0(names(corresp_fastq),collapse = "-"),".fastq.gz"))
+      names(aftermerge_samplename) <- paste0(names(corresp_fastq),collapse = "-")
+    } else {
+      aftermerge_samplename <- corresp_fastq
+      names(aftermerge_samplename) <- names(corresp_fastq)
+    }
+    aftermerging[i] <- aftermerge_samplename
+    aftermerging_names[i] <- names(aftermerge_samplename)
+  }
+  names(aftermerging) <- aftermerging_names
+  
+  samplesinfo[["files_fastq_proc"]] <- aftermerging
+  return(samplesinfo)
+}
+
+
+
 ## TODO: will need a function for alternative entry point with own data
 ## ideally: fetch_sraruninfo - like
 ##          create_analysisfolders
