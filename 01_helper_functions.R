@@ -392,6 +392,23 @@ match_fastq <- function(samplesinfo,
 }
 
 
+#' Merge fastq files of the same sample
+#' 
+#' Merge fastq files of the same sample, concatenating the different fastq of each run
+#'
+#' @param samplesinfo A samplesinfo-like list to store all the required info and steps.
+#' @param data_dir A string, with the name of the main folder where the subfolder called 
+#' \code{datasetID} was created. Defaults to the data_dir element of the provided 
+#' samplesinfo object
+#' @param run_commands Logical, whether to run the commands to merge together fastq files 
+#' belonging to the same sample name, but sequenced in different runs (SRR)
+#'
+#' @return A samplesinfo-like list to store all the required info and steps. This object
+#' can be passed to the subsequent steps and further updated, thus containing all the 
+#' information on the processing steps
+#' @export
+#'
+#' @examples
 mergetech_fastq <- function(samplesinfo,
                             data_dir = samplesinfo$data_dir,
                             run_commands = TRUE) {
