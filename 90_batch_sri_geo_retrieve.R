@@ -384,7 +384,25 @@ if(all(samplesinfo_grover_nerlov_2016$validated_sra == 0)) {
 }
 
 
+## -------------------------------------------------------------------------- ##
+##  feyes_mannhalter-ecoli_platelets-2018  ----------------------------------
+## -------------------------------------------------------------------------- ##
 
+samplesinfo_feyes_mannhalter_2018 <- fetch_sraruninfo("SRP148569",datasetID = "feyes_mannhalter-ecoli_platelets-2018") %>% 
+  fetch_geoinfo("GSE114710") %>% 
+  create_analysisfolders() %>% 
+  get_sradata(force = TRUE) %>% 
+  sra_to_fastq(force = TRUE) %>% 
+  match_fastq() 
+samplesinfo_feyes_mannhalter_2018 <- validate_sra(samplesinfo_feyes_mannhalter_2018)
+samplesinfo_feyes_mannhalter_2018 <- check_fastq(samplesinfo_feyes_mannhalter_2018)
+save(samplesinfo_feyes_mannhalter_2018, file = "_samplesinfo/samplesinfo_feyes_mannhalter_2018.RData")
+
+# if sra are all validated, they can be deleted
+if(all(samplesinfo_feyes_mannhalter_2018$validated_sra == 0)) {
+  # delete from the R environment the sra files
+  unlink(samplesinfo_feyes_mannhalter_2018$files_sra)
+}
 
 
 
@@ -532,6 +550,30 @@ if(all(samplesinfo_maass_rajewsky_2017$validated_sra == 0)) {
   # delete from the R environment the sra files
   unlink(samplesinfo_maass_rajewsky_2017$files_sra)
 }
+
+
+
+
+## -------------------------------------------------------------------------- ##
+##  marcantoni_berger-HIV_platelets-2018  ----------------------------------
+## -------------------------------------------------------------------------- ##
+
+samplesinfo_marcantoni_berger_2018 <- fetch_sraruninfo("SRP108739",datasetID = "marcantoni_berger-HIV_platelets-2018") %>% 
+  fetch_geoinfo("GSE99737") %>% 
+  create_analysisfolders() %>% 
+  get_sradata(force = TRUE) %>% 
+  sra_to_fastq(force = TRUE) %>% 
+  match_fastq() 
+samplesinfo_marcantoni_berger_2018 <- validate_sra(samplesinfo_marcantoni_berger_2018)
+samplesinfo_marcantoni_berger_2018 <- check_fastq(samplesinfo_marcantoni_berger_2018)
+save(samplesinfo_marcantoni_berger_2018, file = "_samplesinfo/samplesinfo_marcantoni_berger_2018.RData")
+
+# if sra are all validated, they can be deleted
+if(all(samplesinfo_marcantoni_berger_2018$validated_sra == 0)) {
+  # delete from the R environment the sra files
+  unlink(samplesinfo_marcantoni_berger_2018$files_sra)
+}
+
 
 
 
@@ -1031,6 +1073,34 @@ _publicdata/yu_maheswaran-circulating_tumor-2013/cmd_batchFastQCrun_M_SRP015945.
 
 
 
+# TODO: maybe afterwards a simple function to clean up the files from fastqc?
+
+
+
+
+## salmon for everyone!
+
+for (i in samplesinfo_objects) {
+  si <- get(i)
+  
+  # cur_species <- si$runinfo$ScientificName
+  # 
+  # # check if it is unique?
+  # if(length(unique(cur_species)) != 1)
+  #   next
+  
+  # cur_salmonindex <- ifelse(unique(cur_species) == "Homo sapiens",
+                      # "_ref/index_salmon_hs_GRCh38.92_cdna.ncrna.sidx/",
+                      # "_ref/index_salmon_mm_GRCm38.92_cdna.ncrna.sidx/")
+  
+  assign(i, run_salmon(samplesinfo = si,
+                       salmon_index_human = "_ref/index_salmon_hs_GRCh38.92_cdna.ncrna.sidx/",
+                       salmon_index_mouse = "_ref/index_salmon_mm_GRCm38.92_cdna.ncrna.sidx/",
+                       create_script = TRUE,force = TRUE))
+}
+
+
+writeLines(list.files(pattern = "cmd_batchsalmonrun",recursive = T))
 
 
 
@@ -1040,5 +1110,39 @@ _publicdata/yu_maheswaran-circulating_tumor-2013/cmd_batchFastQCrun_M_SRP015945.
 
 
 
-
+_publicdata/UNK_jefferson-human_plts-2013/cmd_batchsalmonrun_SRP034558.sh
+_publicdata/alhasan_jackson-circ_degradation-2016/cmd_batchsalmonrun_SRP058654.sh
+_publicdata/an_gallagher-erythroid_diff-2014/cmd_batchsalmonrun_SRP035312.sh
+_publicdata/beauchemin_moroy-megs_gfi1b-2017/cmd_batchsalmonrun_SRP061548.sh
+_publicdata/best_wurdinger-TEPs-2015/cmd_batchsalmonrun_SRP057500.sh
+_publicdata/boisset_vanoudenaarden-network_bonemarrow-2016/cmd_batchsalmonrun_SRP092389.sh
+_publicdata/bray_rigoutsos-complex_landscape-2013/cmd_batchsalmonrun_SRP017372.sh
+_publicdata/campbell_rondina-granzymea_platelets-2017/cmd_batchsalmonrun_SRP114983.sh
+_publicdata/cimmino_golino-mirna_modulation-2015/cmd_batchsalmonrun_ERP004316.sh
+_publicdata/delbridge_grabow-puma_ttp-2016/cmd_batchsalmonrun_SRP067232.sh
+_publicdata/duff_graveley-rnaseq_20humantissues-2015/cmd_batchsalmonrun_SRP056969.sh
+_publicdata/eicher_johnson-acute_mi-2016/cmd_batchsalmonrun_SRP053296.sh
+_publicdata/grover_nerlov-singlecell_hsc-2016/cmd_batchsalmonrun_SRP060557.sh
+_publicdata/illumina_bodymap2-2013/cmd_batchsalmonrun_ERP000546.sh
+_publicdata/kissopoulou_osman-polyA-2013/cmd_batchsalmonrun_ERP000803.sh
+_publicdata/kissopoulou_osman-ribo_depl-2013/cmd_batchsalmonrun_ERP003815.sh
+_publicdata/lefrancais_looney-lungs_bm-2017/cmd_batchsalmonrun_SRP097794.sh
+_publicdata/londin_rigoutsos-txome_proteome-2014/cmd_batchsalmonrun_SRP028846.sh
+_publicdata/maass_rajewsky-human_circ-2017/cmd_batchsalmonrun_SRP109805.sh
+_publicdata/meinders_philipsen-sp1sp3_hallmarks-2015/cmd_batchsalmonrun_SRP043469.sh
+_publicdata/mills_ingolia-pelo_decay-2017/cmd_batchsalmonrun_SRP098699.sh
+_publicdata/mills_ingolia-riboprofiling-2016/cmd_batchsalmonrun_SRP082436.sh
+_publicdata/nassa_tarallo-splicing_proteome-2018/cmd_batchsalmonrun_ERP104860.sh
+_publicdata/nurnberg_ouwehand-invitro_megs-2012/cmd_batchsalmonrun_ERP001115.sh
+_publicdata/osman_provost-pathogen_reduction-2015/cmd_batchsalmonrun_ERP009260.sh
+_publicdata/pontes_burbano-mirna_celldamage-2015/cmd_batchsalmonrun_SRP048290.sh
+_publicdata/preusser_bindereif-release_circ-2018/cmd_batchsalmonrun_SRP118609.sh
+_publicdata/ramirez_mortazavi-dynamic_myeloid-2017/cmd_batchsalmonrun_SRP071547.sh
+_publicdata/rowley_weyrich-human_mouse-2011/cmd_batchsalmonrun_SRP119431.sh
+_publicdata/sawai_reizis-hsc_multilineage-2016/cmd_batchsalmonrun_SRP071090.sh
+_publicdata/shi_weyrich-proteasome_platelets-2014/cmd_batchsalmonrun_SRP062023.sh
+_publicdata/soellner_simon-mouserat_atlas-2017/cmd_batchsalmonrun_ERP104395.sh
+_publicdata/szabo_salzman-human_fetaldevel-2015/cmd_batchsalmonrun_SRP051249.sh
+_publicdata/unigiessen-plt_activation-unp/cmd_batchsalmonrun_SRP118609.sh
+_publicdata/yu_maheswaran-circulating_tumor-2013/cmd_batchsalmonrun_SRP015945.sh
 
