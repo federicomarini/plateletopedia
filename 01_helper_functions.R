@@ -429,9 +429,9 @@ mergetech_fastq <- function(samplesinfo,
       )
       message(merge_cmd)
       file.exists(merged_file)
-      # if(run_commands) {
-      # system(merge_cmd)
-      # }
+      if(run_commands) {
+      system(merge_cmd)
+      }
       # once done, remove originals?
       
       aftermerge_samplename <- file.path(samplesinfo$data_dir,samplesinfo$datasetID,"_fastq",
@@ -690,6 +690,9 @@ run_fastqc_multiT <- function(samplesinfo, # contains the locations of each file
 #' @param create_script Logical, whether to create the script - which needs to be run
 #' from the terminal at a later moment
 #' @param force 
+#' @param salmon_dumpeq Logical, whether to create the \code{eq_classes.txt} file in the
+#' auxiliary directory, containing info on the equivalence classes and the corresponding
+#' counts
 #'
 #' @return A samplesinfo-like list to store all the required info and steps. This object
 #' can be passed to the subsequent steps and further updated, thus containing all the 
@@ -713,6 +716,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                        salmon_ncores = 12,
                        salmon_nbootstraps = 100,
                        salmon_gcbias = TRUE,
+                       salmon_dumpeq = TRUE,
                        create_script = TRUE,
                        force = FALSE
 ) {
@@ -752,6 +756,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                            "--threads",salmon_ncores,
                            "--numBootstraps",salmon_nbootstraps,
                            ifelse(salmon_gcbias, "--seqBias", ""),
+                           ifelse(salmon_dumpeq, "--dumpEq", ""),
                            "--libType A",
                            "--index", this_index,
                            "-r",this_fastqset,
@@ -763,6 +768,7 @@ run_salmon <- function(samplesinfo, # contains the locations of each file/file p
                            "--threads",salmon_ncores,
                            "--numBootstraps",salmon_nbootstraps,
                            ifelse(salmon_gcbias, "--seqBias", ""),
+                           ifelse(salmon_dumpeq, "--dumpEq", ""),
                            "--libType A",
                            "--index", this_index,
                            "-1",this_fastqset$r1,"-2",this_fastqset$r2,
