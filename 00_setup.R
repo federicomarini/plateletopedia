@@ -453,6 +453,30 @@ makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v92_mouse)),
 
 # these should be then built/installed as usual if one wants to avoid using the (still very handy) AnnotationHub
 
+# for version 96 of Ensembl!
+library(AnnotationHub)
+## Load the annotation resource.
+ah <- AnnotationHub()
+
+## Query for all available EnsDb databases
+query(ah, c("96", "EnsDb","Homo"))
+query(ah, c("96", "EnsDb","Musculus"))
+
+edb_v96_human <- ah[["AH69187"]]
+edb_v96_mouse <- ah[["AH69210"]]
+
+makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v96_human)),
+                     version = "0.0.0.9000", 
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>", 
+                     author = "F Marini",
+                     destDir = "_ref")
+
+makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v96_mouse)),
+                     version = "0.0.0.9000", 
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>",
+                     author = "F Marini",
+                     destDir = "_ref")
+
 
 
 
