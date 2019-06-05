@@ -206,7 +206,7 @@ retrieve_ensembl_refs(version_number = 96, species = "human", just_check = FALSE
 #'
 #' @examples
 retrieve_gencode_refs <- function(version_number = 30, # or "M21" 
-                                  unzip_files = TRUE, 
+                                  unzip_files = FALSE, 
                                   ref_dir = "_ref", 
                                   quiet_dl = FALSE,
                                   just_check = TRUE){
@@ -216,9 +216,9 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
     return(invisible())
   }
   message("Retrieving all required files from GENCODE version ", version_number)
-  this_dir <- file.path(ref_dir,paste0("GENCODE_release",version_number))
+  this_dir <- file.path(ref_dir,paste0("GENCODE_",version_number))
   
-  if(!dir.exists(file.path(ref_dir,paste0("GENCODE_release",version_number)))) {
+  if(!dir.exists(file.path(ref_dir,paste0("GENCODE_",version_number)))) {
     dir.create(this_dir)
     message(Sys.time(), " --- ", this_dir, " folder created...")
   } else {
@@ -232,36 +232,44 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
   gencode_fastaref <- ifelse(
     grepl("^M",version_number),"GRCm38.p6.genome.fa.gz","GRCh38.p12.genome.fa.gz")
   
-  message("Fetching genome sequence in fasta format")
-  download.file(
-    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
-                 gencode_organism,
-                 "/release_",version_number,"/",gencode_fastaref),
-    destfile = file.path(this_dir,gencode_fastaref), quiet = quiet_dl)
-  message("Fetching transcript sequences in fasta format")
-  download.file(
-    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
-                 gencode_organism,
-                 "/release_",version_number,"/gencode.v",version_number,".transcripts.fa.gz"),
-    destfile = file.path(this_dir,paste0("gencode.v",version_number,".transcripts.fa.gz")),
-    quiet = quiet_dl)
+  base_ftp <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/"
+  url_genomesequence <- paste0(base_ftp ,gencode_organism,"/release_",version_number,"/",gencode_fastaref)
+  url_cdnasequence <-   paste0(base_ftp, gencode_organism,"/release_",version_number,"/gencode.v",version_number,".transcripts.fa.gz")
+  url_annogtf <-        paste0(base_ftp, gencode_organism,"/release_",version_number,"/gencode.v",version_number,".annotation.gtf.gz")
+  url_annogff3 <-       paste0(base_ftp,gencode_organism, "/release_",version_number,"/gencode.v",version_number,".annotation.gff3.gz")
   
-  message("Fetching gene annotation in gtf format")
-  download.file(
-    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
-                 gencode_organism,
-                 "/release_",version_number,"/gencode.v",version_number,".annotation.gtf.gz"),
-    destfile = file.path(this_dir,paste0("gencode.v",version_number,".annotation.gtf.gz")),
-    quiet = quiet_dl)
-  
-  message("Fetching gene annotation in gff3 format")
-  download.file(
-    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
-                 gencode_organism,
-                 "/release_",version_number,"/gencode.v",version_number,".annotation.gff3.gz"),
-    destfile = file.path(this_dir,paste0("gencode.v",version_number,".annotation.gff3.gz")),
-    quiet = quiet_dl)
+  dest_genomesequence <- file.path(this_dir,gencode_fastaref)
+  dest_cdnasequence <-   file.path(this_dir,paste0("gencode.v",version_number,".transcripts.fa.gz"))
+  dest_annogtf <-        file.path(this_dir,paste0("gencode.v",version_number,".annotation.gtf.gz"))
+  dest_annogff3 <-       file.path(this_dir,paste0("gencode.v",version_number,".annotation.gff3.gz"))
 
+  if(!file.exists(dest_genomesequence)){
+    message("Fetching genome sequence in fasta format")
+    download.file(url = url_genomesequence,destfile = dest_genomesequence, quiet = quiet_dl)
+  } else {
+    message("Already found genome sequence in fasta format")
+  }
+  
+  if(!file.exists(dest_cdnasequence)){
+    message("Fetching cdna sequence in fasta format")
+    download.file(url = url_cdnasequence,destfile = dest_cdnasequence, quiet = quiet_dl)
+  } else {
+    message("Already found cdna sequence in fasta format")
+  }
+  
+  if(!file.exists(dest_annogtf)){
+    message("Fetching gene annotation in gtf format")
+    download.file(url = url_annogtf,destfile = dest_annogtf, quiet = quiet_dl)
+  } else {
+    message("Already found gene annotation in gtf format")
+  }
+  
+  if(!file.exists(dest_annogff3)){
+    message("Fetching gene annotation in gff3 format")
+    download.file(url = url_annogff3,destfile = dest_annogff3, quiet = quiet_dl)
+  } else {
+    message("Already found gene annotation in gff3 format")
+  }
   
   if(unzip_files) {
     # unzipping all files so that they are directly accessible for the program to generate indices and co.
@@ -272,53 +280,13 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
   }
   
   message("\n",Sys.time(), " --- Done retrieving all files for GENCODE version ", version_number)
+  
   return(invisible())
 }
 
+# retrieve_gencode_refs(version_number = "30",just_check = FALSE)
+# retrieve_gencode_refs(version_number = "M21",just_check = FALSE)
 
-
-
-# 
-# # human
-# dir.create("_ref/GENCODE_human_release28")
-# dir.create("_ref/GENCODE_mouse_release17")
-# dir.create("_ref/GENCODE_mouse_release18")
-# 
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz",
-#   destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gtf.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gff3.gz",
-#   destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gff3.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.transcripts.fa.gz",
-#   destfile = "_ref/GENCODE_human_release28/gencode.v28.transcripts.fa.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/GRCh38.p12.genome.fa.gz",
-#   destfile = "_ref/GENCODE_human_release28/GRCh38.p12.genome.fa.gz")
-# 
-# 
-# 
-# # mouse
-# 
-# ## m18
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gtf.gz",
-#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gtf.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gff3.gz",
-#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gff3.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.transcripts.fa.gz",
-#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.transcripts.fa.gz")
-# download.file(
-#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/GRCm38.p6.genome.fa.gz",
-#   destfile = "_ref/GENCODE_mouse_release18/GRCm38.p6.genome.fa.gz")
-# 
-# 
-# system("gunzip _ref/GENCODE_human_release28/*")
-# system("gunzip _ref/GENCODE_mouse_release17/*")
-# system("gunzip _ref/GENCODE_mouse_release18/*")
 
 ## -------------------------------------------------------------------------- ##
 ##  Installing the binaries of the tools that are required ------------------
