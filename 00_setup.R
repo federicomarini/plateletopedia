@@ -71,100 +71,218 @@ unique(rs$study)   ## as a starter
 
 # Retrieving for human and mouse all the relevant references, annotation, and so on
 
-dir.create("_ref/ENSEMBL_release91")
-dir.create("_ref/ENSEMBL_release92")
-
-# release 91 of ENSEMBL
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.cdna.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.cdna.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.cds.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.cds.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.ncrna.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.ncrna.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gtf/homo_sapiens/Homo_sapiens.GRCh38.91.gtf.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.91.gtf.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.gtf.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.91.gtf.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gff3/homo_sapiens/Homo_sapiens.GRCh38.91.gff3.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.91.gff3.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gff3/mus_musculus/Mus_musculus.GRCm38.91.gff3.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.91.gff3.gz")
-
-# release 92 of ENSEMBL - april 2018
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cds.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.cds.all.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.ncrna.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.ncrna.fa.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gtf/mus_musculus/Mus_musculus.GRCm38.92.gtf.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gff3/homo_sapiens/Homo_sapiens.GRCh38.92.gff3.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gff3.gz")
-download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gff3/mus_musculus/Mus_musculus.GRCm38.92.gff3.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gff3.gz")
-
-
-# unzipping all files so that they are directly accessible for the program to generate indices and co.
-system("gunzip _ref/ENSEMBL_release91/*")
-system("gunzip _ref/ENSEMBL_release92/*")
-
-
-
-
-## downloading the essential from the GENCODE project as well (https://www.gencodegenes.org/releases/current.html)
-
-# human
-dir.create("_ref/GENCODE_human_release28")
-dir.create("_ref/GENCODE_mouse_release17")
-dir.create("_ref/GENCODE_mouse_release18")
-
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz",
-  destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gtf.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gff3.gz",
-  destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gff3.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.transcripts.fa.gz",
-  destfile = "_ref/GENCODE_human_release28/gencode.v28.transcripts.fa.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/GRCh38.p12.genome.fa.gz",
-  destfile = "_ref/GENCODE_human_release28/GRCh38.p12.genome.fa.gz")
-
-
-
-# mouse
-## m17
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.annotation.gtf.gz",
-  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gtf.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.annotation.gff3.gz",
-  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.annotation.gff3.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/gencode.vM17.transcripts.fa.gz",
-  destfile = "_ref/GENCODE_mouse_release17/gencode.vM17.transcripts.fa.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M17/GRCm38.p6.genome.fa.gz",
-  destfile = "_ref/GENCODE_mouse_release17/GRCm38.p6.genome.fa.gz")
-
-## m18
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gtf.gz",
-  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gtf.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gff3.gz",
-  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gff3.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.transcripts.fa.gz",
-  destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.transcripts.fa.gz")
-download.file(
-  url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/GRCm38.p6.genome.fa.gz",
-  destfile = "_ref/GENCODE_mouse_release18/GRCm38.p6.genome.fa.gz")
+retrieve_ensembl_refs <- function(version_number = 96, 
+                                  # maybe parametrize species, and use different folder structure?
+                                  unzip_files = FALSE, 
+                                  ref_dir = "_ref", 
+                                  quiet_dl = FALSE,
+                                  just_check = TRUE) {
+  if(just_check) {
+    browseURL("https://www.ensembl.org/Homo_sapiens/Info/Annotation")
+    browseURL("https://www.ensembl.org/Mus_musculus/Info/Annotation")
+    return(invisible())
+  }
+  message("Retrieving all required files from ENSEMBL version ", version_number)
+  this_dir <- file.path(ref_dir,paste0("ENSEMBL_release",version_number))
+  
+  if(!dir.exists(file.path(ref_dir,paste0("ENSEMBL_release",version_number)))) {
+    dir.create(this_dir)
+    message(Sys.time(), " --- ", this_dir, " folder created...")
+  } else {
+    message(Sys.time(), " --- ", this_dir, " folder is already existing")
+  }
+  
+  message("\nRetrieving human references")
+  
+  message("Fetching genome sequence in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"),destfile = file.path(this_dir,"Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"), quiet = quiet_dl)
+  message("Fetching cdna sequence in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz"),destfile = file.path(this_dir,"Homo_sapiens.GRCh38.cdna.all.fa.gz"), quiet = quiet_dl)
+  message("Fetching coding sequences in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz"),destfile = file.path(this_dir,"Homo_sapiens.GRCh38.cds.all.fa.gz"), quiet = quiet_dl)
+  message("Fetching noncoding rna sequences in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz"),destfile = file.path(this_dir,"Homo_sapiens.GRCh38.ncrna.fa.gz"), quiet = quiet_dl)
+  message("Fetching gene annotation in gtf format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/gtf/homo_sapiens/Homo_sapiens.GRCh38.", version_number,".gtf.gz"),destfile = file.path(this_dir,paste0("Homo_sapiens.GRCh38.", version_number,".gtf.gz")), quiet = quiet_dl)
+  message("Fetching gene annotation in gff3 format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/gff3/homo_sapiens/Homo_sapiens.GRCh38.", version_number,".gff3.gz"),destfile = file.path(this_dir,paste0("Homo_sapiens.GRCh38.", version_number,".gff3.gz")), quiet = quiet_dl)
+  
+  message("\nRetrieving mouse references")
+  
+  message("Fetching genome sequence in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz"),destfile = file.path(this_dir,"Mus_musculus.GRCm38.dna.primary_assembly.fa.gz"), quiet = quiet_dl)
+  message("Fetching cdna sequence in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz"),destfile = file.path(this_dir,"Mus_musculus.GRCm38.cdna.all.fa.gz"), quiet = quiet_dl)
+  message("Fetching coding sequences in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz"),destfile = file.path(this_dir,"Mus_musculus.GRCm38.cds.all.fa.gz"), quiet = quiet_dl)
+  message("Fetching noncoding rna sequences in fasta format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz"),destfile = file.path(this_dir,"Mus_musculus.GRCm38.ncrna.fa.gz"), quiet = quiet_dl)
+  message("Fetching gene annotation in gtf format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/gtf/mus_musculus/Mus_musculus.GRCm38.", version_number,".gtf.gz"),destfile = file.path(this_dir,paste0("Mus_musculus.GRCm38.", version_number,".gtf.gz")), quiet = quiet_dl)
+  message("Fetching gene annotation in gff3 format")
+  download.file(url = paste0("ftp://ftp.ensembl.org/pub/release-",version_number,"/gff3/mus_musculus/Mus_musculus.GRCm38.", version_number,".gff3.gz"),destfile = file.path(this_dir,paste0("Mus_musculus.GRCm38.", version_number,".gff3.gz")), quiet = quiet_dl)
+  
+  if(unzip_files) {
+    # unzipping all files so that they are directly accessible for the program to generate indices and co.
+    message("\nUnzipping the downloaded resources... (this might take a while)")
+    message("Unzipping human references")
+    system(paste0("gunzip ", file.path(this_dir,"Homo_sapiens.*gz")))
+    message("Unzipping human references")
+    system(paste0("gunzip ", file.path(this_dir,"Mus_musculus.*gz")))
+    message("Done unzipping")
+  }
+  
+  message("\n",Sys.time(), " --- Done retrieving all files for ENSEMBL version ", version_number)
+  return(invisible())
+}
 
 
-system("gunzip _ref/GENCODE_human_release28/*")
-system("gunzip _ref/GENCODE_mouse_release17/*")
-system("gunzip _ref/GENCODE_mouse_release18/*")
+# dir.create("_ref/ENSEMBL_release91")
+# dir.create("_ref/ENSEMBL_release92")
+# 
+# # release 91 of ENSEMBL
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.cdna.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.cdna.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.cds.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.cds.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.ncrna.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.ncrna.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gtf/homo_sapiens/Homo_sapiens.GRCh38.91.gtf.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.91.gtf.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.gtf.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.91.gtf.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gff3/homo_sapiens/Homo_sapiens.GRCh38.91.gff3.gz",destfile = "_ref/ENSEMBL_release91/Homo_sapiens.GRCh38.91.gff3.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-91/gff3/mus_musculus/Mus_musculus.GRCm38.91.gff3.gz",destfile = "_ref/ENSEMBL_release91/Mus_musculus.GRCm38.91.gff3.gz")
+# 
+# # release 92 of ENSEMBL - april 2018
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cdna.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/cdna/Mus_musculus.GRCm38.cdna.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.cdna.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/cds/Homo_sapiens.GRCh38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.cds.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/cds/Mus_musculus.GRCm38.cds.all.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.cds.all.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.ncrna.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/fasta/mus_musculus/ncrna/Mus_musculus.GRCm38.ncrna.fa.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.ncrna.fa.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gtf/homo_sapiens/Homo_sapiens.GRCh38.92.gtf.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gtf/mus_musculus/Mus_musculus.GRCm38.92.gtf.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gff3/homo_sapiens/Homo_sapiens.GRCh38.92.gff3.gz",destfile = "_ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gff3.gz")
+# download.file(url = "ftp://ftp.ensembl.org/pub/release-92/gff3/mus_musculus/Mus_musculus.GRCm38.92.gff3.gz",destfile = "_ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gff3.gz")
+
+
+retrieve_gencode_refs <- function(version_number = 30, # or "M21" 
+                                  unzip_files = TRUE, 
+                                  ref_dir = "_ref", 
+                                  quiet_dl = FALSE,
+                                  just_check = TRUE){
+  ## downloading the essential from the GENCODE project as well (https://www.gencodegenes.org/releases/current.html)
+  if(just_check) {
+    browseURL("https://www.gencodegenes.org")
+    return(invisible())
+  }
+  message("Retrieving all required files from GENCODE version ", version_number)
+  this_dir <- file.path(ref_dir,paste0("GENCODE_release",version_number))
+  
+  if(!dir.exists(file.path(ref_dir,paste0("GENCODE_release",version_number)))) {
+    dir.create(this_dir)
+    message(Sys.time(), " --- ", this_dir, " folder created...")
+  } else {
+    message(Sys.time(), " --- ", this_dir, " folder is already existing")
+  }
+  
+  gencode_organism <- ifelse(grepl("^M",version_number),"Gencode_mouse","Gencode_human")
+  message("\nRetrieving references for GENCODE version ",version_number)
+  message("Organism: ", gencode_organism)
+  
+  gencode_fastaref <- ifelse(
+    grepl("^M",version_number),"GRCm38.p6.genome.fa.gz","GRCh38.p12.genome.fa.gz")
+  
+  message("Fetching genome sequence in fasta format")
+  download.file(
+    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
+                 gencode_organism,
+                 "/release_",version_number,"/",gencode_fastaref),
+    destfile = file.path(this_dir,gencode_fastaref), quiet = quiet_dl)
+  message("Fetching transcript sequences in fasta format")
+  download.file(
+    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
+                 gencode_organism,
+                 "/release_",version_number,"/gencode.v",version_number,".transcripts.fa.gz"),
+    destfile = file.path(this_dir,paste0("gencode.v",version_number,".transcripts.fa.gz")),
+    quiet = quiet_dl)
+  
+  message("Fetching gene annotation in gtf format")
+  download.file(
+    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
+                 gencode_organism,
+                 "/release_",version_number,"/gencode.v",version_number,".annotation.gtf.gz"),
+    destfile = file.path(this_dir,paste0("gencode.v",version_number,".annotation.gtf.gz")),
+    quiet = quiet_dl)
+  
+  message("Fetching gene annotation in gff3 format")
+  download.file(
+    url = paste0("ftp://ftp.ebi.ac.uk/pub/databases/gencode/",
+                 gencode_organism,
+                 "/release_",version_number,"/gencode.v",version_number,".annotation.gff3.gz"),
+    destfile = file.path(this_dir,paste0("gencode.v",version_number,".annotation.gff3.gz")),
+    quiet = quiet_dl)
+
+  
+  if(unzip_files) {
+    # unzipping all files so that they are directly accessible for the program to generate indices and co.
+    message("\nUnzipping the downloaded resources... (this might take a while)")
+    message("Unzipping references for ",gencode_organism)
+    system(paste0("gunzip ", file.path(this_dir,"*gz")))
+    message("Done unzipping")
+  }
+  
+  message("\n",Sys.time(), " --- Done retrieving all files for GENCODE version ", version_number)
+  return(invisible())
+}
+
+
+
+
+# 
+# # human
+# dir.create("_ref/GENCODE_human_release28")
+# dir.create("_ref/GENCODE_mouse_release17")
+# dir.create("_ref/GENCODE_mouse_release18")
+# 
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz",
+#   destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gtf.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gff3.gz",
+#   destfile = "_ref/GENCODE_human_release28/gencode.v28.annotation.gff3.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.transcripts.fa.gz",
+#   destfile = "_ref/GENCODE_human_release28/gencode.v28.transcripts.fa.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/GRCh38.p12.genome.fa.gz",
+#   destfile = "_ref/GENCODE_human_release28/GRCh38.p12.genome.fa.gz")
+# 
+# 
+# 
+# # mouse
+# 
+# ## m18
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gtf.gz",
+#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gtf.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.annotation.gff3.gz",
+#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.annotation.gff3.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/gencode.vM18.transcripts.fa.gz",
+#   destfile = "_ref/GENCODE_mouse_release18/gencode.vM18.transcripts.fa.gz")
+# download.file(
+#   url = "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M18/GRCm38.p6.genome.fa.gz",
+#   destfile = "_ref/GENCODE_mouse_release18/GRCm38.p6.genome.fa.gz")
+# 
+# 
+# system("gunzip _ref/GENCODE_human_release28/*")
+# system("gunzip _ref/GENCODE_mouse_release17/*")
+# system("gunzip _ref/GENCODE_mouse_release18/*")
 
 ## -------------------------------------------------------------------------- ##
 ##  Installing the binaries of the tools that are required ------------------
