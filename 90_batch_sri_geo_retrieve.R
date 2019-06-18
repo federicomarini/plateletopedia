@@ -214,6 +214,30 @@ if(all(samplesinfo_campbell_rondina_2017$validated_sra == 0)) {
 
 
 ## -------------------------------------------------------------------------- ##
+##  campbell_rondina-megs_antiviral-2019  ----------------------------------
+## -------------------------------------------------------------------------- ##
+
+samplesinfo_campbell_rondina_2019 <- fetch_sraruninfo("SRP182839",datasetID = "campbell_rondina-megs_antiviral-2019") %>%
+  create_analysisfolders() %>% 
+  get_sradata(force = TRUE) %>% 
+  sra_to_fastq(force = TRUE) %>% 
+  match_fastq() 
+samplesinfo_campbell_rondina_2019 <- validate_sra(samplesinfo_campbell_rondina_2019)
+samplesinfo_campbell_rondina_2019 <- check_fastq(samplesinfo_campbell_rondina_2019)
+save(samplesinfo_campbell_rondina_2019, file = "_samplesinfo/samplesinfo_campbell_rondina_2019.RData")
+
+# if sra are all validated, they can be deleted
+if(all(samplesinfo_campbell_rondina_2019$validated_sra == 0)) {
+  # delete from the R environment the sra files
+  unlink(samplesinfo_campbell_rondina_2019$files_sra)
+}
+
+
+
+
+
+
+## -------------------------------------------------------------------------- ##
 ##  cimmino_golino-mirna_modulation-2015  ----------------------------------
 ## -------------------------------------------------------------------------- ##
 
@@ -364,24 +388,29 @@ if(all(samplesinfo_fagerberg_uhlen_2016$validated_sra == 0)) {
 
 
 ## -------------------------------------------------------------------------- ##
-##  grover_nerlov-singlecell_hsc-2016  ----------------------------------
+##  ferdous_scott-chicken_platelets-2016  ----------------------------------
 ## -------------------------------------------------------------------------- ##
 
-samplesinfo_grover_nerlov_2016 <- fetch_sraruninfo("SRP060557",datasetID = "grover_nerlov-singlecell_hsc-2016") %>% 
-  fetch_geoinfo("GSE70657") %>% 
+samplesinfo_ferdous_scott_2016 <- fetch_sraruninfo("SRP090377",datasetID = "ferdous_scott-chicken_platelets-2016") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
   match_fastq() 
-samplesinfo_grover_nerlov_2016 <- validate_sra(samplesinfo_grover_nerlov_2016)
-samplesinfo_grover_nerlov_2016 <- check_fastq(samplesinfo_grover_nerlov_2016)
-save(samplesinfo_grover_nerlov_2016, file = "_samplesinfo/samplesinfo_grover_nerlov_2016.RData")
+samplesinfo_ferdous_scott_2016 <- validate_sra(samplesinfo_ferdous_scott_2016)
+samplesinfo_ferdous_scott_2016 <- check_fastq(samplesinfo_ferdous_scott_2016)
+save(samplesinfo_ferdous_scott_2016, file = "_samplesinfo/samplesinfo_ferdous_scott_2016.RData")
 
 # if sra are all validated, they can be deleted
-if(all(samplesinfo_grover_nerlov_2016$validated_sra == 0)) {
+if(all(samplesinfo_ferdous_scott_2016$validated_sra == 0)) {
   # delete from the R environment the sra files
-  unlink(samplesinfo_grover_nerlov_2016$files_sra)
+  unlink(samplesinfo_ferdous_scott_2016$files_sra)
 }
+
+
+
+
+
+
 
 
 ## -------------------------------------------------------------------------- ##
@@ -403,6 +432,30 @@ if(all(samplesinfo_feyes_mannhalter_2018$validated_sra == 0)) {
   # delete from the R environment the sra files
   unlink(samplesinfo_feyes_mannhalter_2018$files_sra)
 }
+
+
+## -------------------------------------------------------------------------- ##
+##  grover_nerlov-singlecell_hsc-2016  ----------------------------------
+## -------------------------------------------------------------------------- ##
+
+samplesinfo_grover_nerlov_2016 <- fetch_sraruninfo("SRP060557",datasetID = "grover_nerlov-singlecell_hsc-2016") %>% 
+  fetch_geoinfo("GSE70657") %>% 
+  create_analysisfolders() %>% 
+  get_sradata(force = TRUE) %>% 
+  sra_to_fastq(force = TRUE) %>% 
+  match_fastq() 
+samplesinfo_grover_nerlov_2016 <- validate_sra(samplesinfo_grover_nerlov_2016)
+samplesinfo_grover_nerlov_2016 <- check_fastq(samplesinfo_grover_nerlov_2016)
+save(samplesinfo_grover_nerlov_2016, file = "_samplesinfo/samplesinfo_grover_nerlov_2016.RData")
+
+# if sra are all validated, they can be deleted
+if(all(samplesinfo_grover_nerlov_2016$validated_sra == 0)) {
+  # delete from the R environment the sra files
+  unlink(samplesinfo_grover_nerlov_2016$files_sra)
+}
+
+
+
 
 
 
@@ -999,8 +1052,6 @@ if(all(samplesinfo_yu_maheswaran_2013$validated_sra == 0)) {
   # delete from the R environment the sra files
   unlink(samplesinfo_yu_maheswaran_2013$files_sra)
 }
-
-
 
 
 
