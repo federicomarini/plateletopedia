@@ -230,7 +230,7 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
   message("Organism: ", gencode_organism)
   
   gencode_fastaref <- ifelse(
-    grepl("^M",version_number),"GRCm38.p6.genome.fa.gz","GRCh38.p12.genome.fa.gz")
+    grepl("^M",version_number),"GRCm38.p6.genome.fa.gz","GRCh38.p13.genome.fa.gz")
   
   base_ftp <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/"
   url_genomesequence <- paste0(base_ftp ,gencode_organism,"/release_",version_number,"/",gencode_fastaref)
