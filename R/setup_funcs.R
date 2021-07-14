@@ -197,8 +197,8 @@ retrieve_ensembl_refs <- function(version_number = 102,
   return(invisible())
 }
 
-retrieve_ensembl_refs(version_number = 102, species = "mouse", just_check = FALSE)
-retrieve_ensembl_refs(version_number = 102, species = "human", just_check = FALSE)
+# retrieve_ensembl_refs(version_number = 102, species = "mouse", just_check = FALSE)
+# retrieve_ensembl_refs(version_number = 102, species = "human", just_check = FALSE)
 
 
 #' Title
