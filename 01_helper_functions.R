@@ -13,7 +13,7 @@
 #' The fundamental elements are a runinfo data.frame, storing info like a SraRunInfo 
 #' file (allowing also unpublished/in-house data to be included); a datasetID as 
 #' unique identifier ("firstauthor_last-paper_topic-year"); and a data_dir, which
-#' defaults to "_publicdata", as the overarching folder for storing all datasets
+#' defaults to "plateletopedia_publicdata", as the overarching folder for storing all datasets
 #'
 #' @param SRAid The SRA identifier, normally the SRP id for the relevant project
 #' @param datasetID  A string, ideally informative about the project/dataset it refers to.
@@ -37,7 +37,7 @@
 #' samplesinfo <- fetch_sraruninfo("SRP098699",datasetID = "__TEST__mills_ingolia-pelo_decay-2017")
 fetch_sraruninfo <- function(SRAid,
                              datasetID = SRAid,
-                             data_dir = "_publicdata",
+                             data_dir = "plateletopedia_publicdata",
                              outname = paste0(SRAid,"_SraRunInfo.csv"),
                              quietDownload = FALSE,
                              force = FALSE) {
