@@ -81,7 +81,55 @@ retrieve_gencode_refs(version_number = "M25",just_check = FALSE)
 
 ## Creating indices for alignment and quantifications
 
-```{r}
+```{bash}
+salmon --version
 
+## for Ensembl
+
+grep "^>" <(gunzip -c plateletopedia_ref/Ensembl.GRCh38.102/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/Ensembl.GRCh38.102/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/Ensembl.GRCh38.102/decoys.txt
+
+grep "^>" <(gunzip -c plateletopedia_ref/Ensembl.GRCh38.104/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/Ensembl.GRCh38.104/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/Ensembl.GRCh38.104/decoys.txt
+
+
+grep "^>" <(gunzip -c plateletopedia_ref/Ensembl.GRCm38.102/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/Ensembl.GRCm38.102/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/Ensembl.GRCm38.102/decoys.txt
+
+grep "^>" <(gunzip -c plateletopedia_ref/Ensembl.GRCm39.104/Mus_musculus.GRCm39.dna.primary_assembly.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/Ensembl.GRCm39.104/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/Ensembl.GRCm39.104/decoys.txt
+
+
+
+## for Gencode
+
+grep "^>" <(gunzip -c plateletopedia_ref/GENCODE_37/GRCh38.primary_assembly.genome.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/GENCODE_37/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/GENCODE_37/decoys.txt
+
+grep "^>" <(gunzip -c plateletopedia_ref/GENCODE_38/GRCh38.primary_assembly.genome.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/GENCODE_38/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/GENCODE_38/decoys.txt
+
+
+grep "^>" <(gunzip -c plateletopedia_ref/GENCODE_M25/GRCm38.primary_assembly.genome.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/GENCODE_M25/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/GENCODE_M25/decoys.txt
+
+grep "^>" <(gunzip -c plateletopedia_ref/GENCODE_M27/GRCm39.primary_assembly.genome.fa.gz) | cut -d " " -f 1 > plateletopedia_ref/GENCODE_M27/decoys.txt
+sed -i.bak -e 's/>//g' plateletopedia_ref/GENCODE_M27/decoys.txt
+
+
+
+
+
+cat plateletopedia_ref/GENCODE_37/gencode.v37.transcripts.fa.gz plateletopedia_ref/GENCODE_37/GRCh38.primary_assembly.genome.fa.gz > plateletopedia_ref/GENCODE_37/gentrome.fa.gz
+cat plateletopedia_ref/GENCODE_38/gencode.v38.transcripts.fa.gz plateletopedia_ref/GENCODE_38/GRCh38.primary_assembly.genome.fa.gz > plateletopedia_ref/GENCODE_38/gentrome.fa.gz
+cat plateletopedia_ref/GENCODE_M25/gencode.vM25.transcripts.fa.gz plateletopedia_ref/GENCODE_M25/GRCm38.primary_assembly.genome.fa.gz > plateletopedia_ref/GENCODE_M25/gentrome.fa.gz
+cat plateletopedia_ref/GENCODE_M27/gencode.vM27.transcripts.fa.gz plateletopedia_ref/GENCODE_M27/GRCm39.primary_assembly.genome.fa.gz > plateletopedia_ref/GENCODE_M27/gentrome.fa.gz
+
+
+
+salmon index -t plateletopedia_ref/GENCODE_37/gentrome.fa.gz -d plateletopedia_ref/GENCODE_37/decoys.txt -p 12 -i plateletopedia_ref/salmon_index_gentrome_GENCODE_37 --gencode
+salmon index -t plateletopedia_ref/GENCODE_38/gentrome.fa.gz -d plateletopedia_ref/GENCODE_38/decoys.txt -p 12 -i plateletopedia_ref/salmon_index_gentrome_GENCODE_38 --gencode
+salmon index -t plateletopedia_ref/GENCODE_M25/gentrome.fa.gz -d plateletopedia_ref/GENCODE_M25/decoys.txt -p 12 -i plateletopedia_ref/salmon_index_gentrome_GENCODE_M25 --gencode
+salmon index -t plateletopedia_ref/GENCODE_M27/gentrome.fa.gz -d plateletopedia_ref/GENCODE_M27/decoys.txt -p 12 -i plateletopedia_ref/salmon_index_gentrome_GENCODE_M27 --gencode
 ```
 
