@@ -60,10 +60,28 @@ htmltools::tagList(rmarkdown::html_dependency_font_awesome())
 ## Retrieval of references
 
 ```{r}
+setup_folders(project_name = "plateletopedia")
+
+retrieve_ensembl_refs(version_number = 102, species = "human", just_check = FALSE)
+retrieve_ensembl_refs(version_number = 102, species = "mouse", just_check = FALSE)
+
+retrieve_ensembl_refs(version_number = 104, species = "human", just_check = FALSE)
+retrieve_ensembl_refs(version_number = 104, species = "mouse", just_check = FALSE)
 
 
 
+retrieve_gencode_refs(version_number = "38",just_check = FALSE)
+retrieve_gencode_refs(version_number = "M27",just_check = FALSE)
 
+retrieve_gencode_refs(version_number = "37",just_check = FALSE)
+retrieve_gencode_refs(version_number = "M25",just_check = FALSE)
+
+
+```
+
+## Creating indices for alignment and quantifications
+
+```{r}
 
 ```
 
