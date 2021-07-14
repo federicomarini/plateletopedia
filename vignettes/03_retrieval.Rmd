@@ -1,6 +1,6 @@
 ---
 title: >
-  Setting up plateletopedia as a resource
+  Retrieving the plateletopedia datasets
 author:
 - name: Federico Marini
   affiliation: 
@@ -55,9 +55,7 @@ htmltools::tagList(rmarkdown::html_dependency_font_awesome())
 
 ---
 
-# Setup {#setup}
-
-## Retrieval of references
+# Retrieval of the datasets
 
 ```{r}
 

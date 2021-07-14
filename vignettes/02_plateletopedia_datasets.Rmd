@@ -1,0 +1,101 @@
+---
+title: >
+  The plateletopedia datasets
+author:
+- name: Federico Marini
+  affiliation: 
+  - Institute of Medical Biostatistics, Epidemiology and Informatics (IMBEI), Mainz
+  - Center for Thrombosis and Hemostasis (CTH), Mainz
+  email: marinif@uni-mainz.de
+- name: Annekathrin Ludt
+  affiliation: 
+  - Institute of Medical Biostatistics, Epidemiology and Informatics (IMBEI), Mainz
+  email: anneludt@uni-mainz.de
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('plateletopedia')`"
+output: 
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{The plateletopedia datasets}
+  %\VignetteEncoding{UTF-8}  
+  %\VignettePackage{plateletopedia}
+  %\VignetteKeywords{GeneExpression, RNASeq, FunctionalAnnotation, Sequencing, Visualization, QualityControl, GUI}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+<style type="text/css">
+.smaller {
+  font-size: 10px
+}
+</style>
+
+**Compiled date**: `r Sys.Date()`
+
+**Last edited**: 2021-07-14
+
+**License**: `r packageDescription("plateletopedia")[["License"]]`
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  error    = FALSE,
+  warning  = FALSE,
+  eval     = FALSE,
+  message  = FALSE,
+  fig.width = 10
+)
+options(width = 100)
+stopifnot(requireNamespace("htmltools"))
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+```
+
+---
+
+# The datasets {#datasets}
+
+```{r}
+# access the googledocs sheet
+# install.packages("googlesheets")
+library("googlesheets")
+gs_auth(new_user = TRUE)
+
+library(dplyr)
+gs_ls() %>% View
+
+plt_sets <- gs_read(gs_title("Platelets_datasets_collection"))
+# open up the different Pubmed IDs, to retrieve the doi
+## not required after the first time :)
+
+# once the doi is there, use rcrossref to get the full textual citation
+# devtools::install_github("ropensci/rcrossref")
+library('rcrossref')
+View(plt_sets)
+## see here some documentation: https://github.com/ropensci/rcrossref
+# cr_cn(dois = plt_sets$doi[31], format = "text", style = "apa")
+cr_cn(dois = plt_sets$doi[36], format = "text", style = "apa")
+View(get_styles()) # and there search for something with 'no-et-al' to list all authors
+# cr_cn(dois = plt_sets$DOI[36], format = "text", style = "american-medical-association-no-et-al")
+all_crossref_infos <- cr_cn(dois = plt_sets$doi, format = "text", style = "american-medical-association-no-et-al")
+
+# store this info in a multi-line text document - even better if the exported file is in markdown, it is directly previewable
+all_crossref_infos %>% unlist() %>% writeLines()
+
+# writeLines(paste0("pubstatus_",Sys.Date(),"_exported.md"))
+
+# this one gives some bibtex
+cat(cr_cn(dois = plt_sets$doi[36], format = "bibtex"))
+
+cr_abstract(plt_sets$doi[3])
+# does not work...
+
+
+
+
+
+
+```
+
