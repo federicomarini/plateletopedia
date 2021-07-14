@@ -105,6 +105,9 @@ retrieve_ensembl_refs <- function(version_number = 102,
   cur_organism <- all_organisms[cur_species]
   cur_build <- all_builds[cur_species]
 
+  if (cur_species == mouse & version_number > 102)
+    cur_build <- "GRCm39"
+
   if(just_check) {
     if(cur_species == "human")
       browseURL("https://www.ensembl.org/Homo_sapiens/Info/Annotation")
