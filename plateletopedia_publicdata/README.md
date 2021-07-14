@@ -1,4 +1,4 @@
-# `_publicdata` folder
+# `plateletopedia_publicdata` folder
 
 This folder contains the data from different public sources, including:
 
