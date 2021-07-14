@@ -10,11 +10,11 @@ dir.create("_db")         # for sql(ite) dbs, or tabular dbs retrieved
 ## -------------------------------------------------------------------------- ##
 library(SRAdb)
 sqlfile <- '_db/SRAmetadb.sqlite'
-if(!file.exists('_db/SRAmetadb.sqlite')) 
+if(!file.exists('_db/SRAmetadb.sqlite'))
   sqlfile <<- getSRAdbFile()
 
 # Then, create a connection for later queries. The standard DBI functionality as implemented
-# in RSQLite function dbConnect makes the connection to the database. The dbDisconnect 
+# in RSQLite function dbConnect makes the connection to the database. The dbDisconnect
 # function disconnects the connection.
 sra_con <- dbConnect(SQLite(),sqlfile)
 
@@ -22,39 +22,39 @@ sra_con <- dbConnect(SQLite(),sqlfile)
 rs <- getSRAinfo ( c("SRX000122"), sra_con, sraType = "sra" )
 rs[1:3,]
 
-getFASTQinfo( c("SRR000648","SRR000657"), sra_con, srcType = 'ftp' ) 
+getFASTQinfo( c("SRR000648","SRR000657"), sra_con, srcType = 'ftp' )
 getSRAfile( c("SRR000648","SRR000657"), sra_con, fileType = 'fastq' )
 
 
 # # Additionally, to obtain the SRAid correspondences as in https://www.biostars.org/p/244150/
 # accessions_SRA_file <- "ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/SRA_Accessions.tab"
 # download.file(accessions_SRA_file,paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".tab"))
-# 
+#
 # # accessions_SRA <- readr::read_tsv(accessions_SRA_file)
-# 
+#
 # grep '^SRR' _db/SRA_Accessions_SNAPSHOT_2018-01-31.tab | grep 'GSM' > _db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab
-# 
+#
 # # insert header as first line
 # # Accession       Submission      Status  Updated Published       Received        Type    Center  Visibility      Alias   Experiment      Sample  Study   Loaded  Spots   Bases   Md5sum  BioSample     BioProject      ReplacedBy
 # sed -i "1i\
 # $(head -n 1 _db/SRA_Accessions_SNAPSHOT_2018-01-31.tab)" _db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab
-# 
+#
 # mydf <- data.table::fread("_db/SRA_Accessions_RUNSonly_SNAPSHOT_2018-01-31.tab")
 # # colnames(mydf) <- dbListFields(sraacc_con,name = "SRAaccs")
-# 
-# 
+#
+#
 # # to be done once
 # library(DBI)
 # mySRAaccessiondb <- dbConnect(RSQLite::SQLite(), paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".sqlite"))
 # dbWriteTable(mySRAaccessiondb, "SRAaccs", mydf)
-# 
+#
 # # to use it:
 # sraacc_con <- dbConnect(SQLite(),paste0("_db/SRA_Accessions_SNAPSHOT_",Sys.Date(),".sqlite"))
 # dbListTables(sraacc_con)
-# 
+#
 # dbListFields(sraacc_con,name = "SRAaccs")
-# 
-# dbGetQuery(sraacc_con, 'SELECT * FROM SRAaccs WHERE "Alias" == :x', 
+#
+# dbGetQuery(sraacc_con, 'SELECT * FROM SRAaccs WHERE "Alias" == :x',
 #            params = list(x = "GSM2474455"))
 
 
@@ -73,33 +73,33 @@ unique(rs$study)   ## as a starter
 
 #' Title
 #'
-#' @param version_number 
-#' @param species 
-#' @param unzip_files 
-#' @param ref_dir 
-#' @param quiet_dl 
-#' @param just_check 
+#' @param version_number
+#' @param species
+#' @param unzip_files
+#' @param ref_dir
+#' @param quiet_dl
+#' @param just_check
 #'
 #' @return
 #' @export
 #'
 #' @examples
-retrieve_ensembl_refs <- function(version_number = 96, 
+retrieve_ensembl_refs <- function(version_number = 96,
                                   species = c("human","mouse"),
                                   # maybe parametrize species, and use different folder structure?
-                                  unzip_files = FALSE, 
-                                  ref_dir = "_ref", 
+                                  unzip_files = FALSE,
+                                  ref_dir = "_ref",
                                   quiet_dl = FALSE,
                                   just_check = TRUE) {
-  
+
   cur_species <- match.arg(species)
-  
+
   all_organisms <- setNames(c("Homo_sapiens","Mus_musculus"),c("human","mouse"))
   all_builds <- setNames(c("GRCh38","GRCm38"),c("human","mouse"))
   # all_prefixes <- setNames(c("Homo_sapiens.GRCh38","Mus_musculus.GRCm38"),c("human","mouse"))
   cur_organism <- all_organisms[cur_species]
   cur_build <- all_builds[cur_species]
-  
+
   if(just_check) {
     if(cur_species == "human")
       browseURL("https://www.ensembl.org/Homo_sapiens/Info/Annotation")
@@ -110,16 +110,16 @@ retrieve_ensembl_refs <- function(version_number = 96,
 
   message("Retrieving all required files from ENSEMBL version ", version_number)
   this_dir <- file.path(ref_dir,paste0("Ensembl.",cur_build,".",version_number))
-  
+
   if(!dir.exists(this_dir)) {
     dir.create(this_dir)
     message(Sys.time(), " --- ", this_dir, " folder created...")
   } else {
     message(Sys.time(), " --- ", this_dir, " folder is already existing")
   }
-  
+
   message("\nRetrieving references for ", paste(cur_organism, cur_build))
-  
+
   base_ftp <- paste0("ftp://ftp.ensembl.org/pub/release-",version_number)
   url_genomesequence <- paste0(base_ftp,"/fasta/",tolower(cur_organism),"/dna/",cur_organism,".",cur_build,".dna.primary_assembly.fa.gz")
   url_cdnasequence <-   paste0(base_ftp,"/fasta/",tolower(cur_organism),"/cdna/",cur_organism,".",cur_build,".cdna.all.fa.gz")
@@ -127,56 +127,56 @@ retrieve_ensembl_refs <- function(version_number = 96,
   url_ncrna <-          paste0(base_ftp,"/fasta/",tolower(cur_organism),"/ncrna/",cur_organism,".",cur_build,".ncrna.fa.gz")
   url_annogtf <-        paste0(base_ftp,"/gtf/",tolower(cur_organism),"/",cur_organism,".",cur_build,".",version_number,".gtf.gz")
   url_annogff3 <-       paste0(base_ftp,"/gff3/",tolower(cur_organism),"/",cur_organism,".",cur_build,".",version_number,".gff3.gz")
-    
-  dest_genomesequence <- file.path(this_dir,paste0(cur_organism,".",cur_build,".dna.primary_assembly.fa.gz")) 
+
+  dest_genomesequence <- file.path(this_dir,paste0(cur_organism,".",cur_build,".dna.primary_assembly.fa.gz"))
   dest_cdnasequence <-   file.path(this_dir,paste0(cur_organism,".",cur_build,".cdna.all.fa.gz"))
   dest_codingseq <-      file.path(this_dir,paste0(cur_organism,".",cur_build,".cds.all.fa.gz"))
   dest_ncrna <-          file.path(this_dir,paste0(cur_organism,".",cur_build,".ncrna.fa.gz"))
   dest_annogtf <-        file.path(this_dir,paste0(cur_organism,".",cur_build,".",version_number,".gtf.gz"))
   dest_annogff3 <-       file.path(this_dir,paste0(cur_organism,".",cur_build,".",version_number,".gff3.gz"))
-  
+
   if(!file.exists(dest_genomesequence)){
     message("Fetching genome sequence in fasta format")
     download.file(url = url_genomesequence,destfile = dest_genomesequence, quiet = quiet_dl)
   } else {
     message("Already found genome sequence in fasta format")
   }
-  
+
   if(!file.exists(dest_cdnasequence)){
     message("Fetching cdna sequence in fasta format")
     download.file(url = url_cdnasequence,destfile = dest_cdnasequence, quiet = quiet_dl)
   } else {
     message("Already found cdna sequence in fasta format")
   }
-  
+
   if(!file.exists(dest_codingseq)){
     message("Fetching coding sequences in fasta format")
     download.file(url = url_codingseq,destfile = dest_codingseq, quiet = quiet_dl)
   } else {
     message("Already found coding sequences in fasta format")
   }
-  
+
   if(!file.exists(dest_ncrna)){
     message("Fetching noncoding rna sequences in fasta format")
     download.file(url = url_ncrna,destfile = dest_ncrna, quiet = quiet_dl)
   } else {
     message("Already found noncoding rna sequences in fasta format")
   }
-  
+
   if(!file.exists(dest_annogtf)){
     message("Fetching gene annotation in gtf format")
     download.file(url = url_annogtf,destfile = dest_annogtf, quiet = quiet_dl)
   } else {
     message("Already found gene annotation in gtf format")
   }
-  
+
   if(!file.exists(dest_annogff3)){
     message("Fetching gene annotation in gff3 format")
     download.file(url = url_annogff3,destfile = dest_annogff3, quiet = quiet_dl)
   } else {
     message("Already found gene annotation in gff3 format")
   }
-  
+
   if(unzip_files) {
     # unzipping all files so that they are directly accessible for the program to generate indices and co.
     message("\nUnzipping the downloaded resources... (this might take a while)")
@@ -184,7 +184,7 @@ retrieve_ensembl_refs <- function(version_number = 96,
     system(paste0("gunzip ", file.path(this_dir,"*gz")))
     message("Done unzipping")
   }
-  
+
   message("\n",Sys.time(), " --- Done retrieving all files for ENSEMBL version ", version_number, " for ", paste0(cur_organism, " - build ", cur_build))
   return(invisible())
 }
@@ -195,19 +195,19 @@ retrieve_ensembl_refs(version_number = 96, species = "human", just_check = FALSE
 
 #' Title
 #'
-#' @param version_number 
-#' @param unzip_files 
-#' @param ref_dir 
-#' @param quiet_dl 
-#' @param just_check 
+#' @param version_number
+#' @param unzip_files
+#' @param ref_dir
+#' @param quiet_dl
+#' @param just_check
 #'
 #' @return
 #' @export
 #'
 #' @examples
-retrieve_gencode_refs <- function(version_number = 30, # or "M21" 
-                                  unzip_files = FALSE, 
-                                  ref_dir = "_ref", 
+retrieve_gencode_refs <- function(version_number = 30, # or "M21"
+                                  unzip_files = FALSE,
+                                  ref_dir = "_ref",
                                   quiet_dl = FALSE,
                                   just_check = TRUE){
   ## downloading the essential from the GENCODE project as well (https://www.gencodegenes.org/releases/current.html)
@@ -217,27 +217,27 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
   }
   message("Retrieving all required files from GENCODE version ", version_number)
   this_dir <- file.path(ref_dir,paste0("GENCODE_",version_number))
-  
+
   if(!dir.exists(file.path(ref_dir,paste0("GENCODE_",version_number)))) {
     dir.create(this_dir)
     message(Sys.time(), " --- ", this_dir, " folder created...")
   } else {
     message(Sys.time(), " --- ", this_dir, " folder is already existing")
   }
-  
+
   gencode_organism <- ifelse(grepl("^M",version_number),"Gencode_mouse","Gencode_human")
   message("\nRetrieving references for GENCODE version ",version_number)
   message("Organism: ", gencode_organism)
-  
+
   gencode_fastaref <- ifelse(
     grepl("^M",version_number),"GRCm38.p6.genome.fa.gz","GRCh38.p13.genome.fa.gz")
-  
+
   base_ftp <- "ftp://ftp.ebi.ac.uk/pub/databases/gencode/"
   url_genomesequence <- paste0(base_ftp ,gencode_organism,"/release_",version_number,"/",gencode_fastaref)
   url_cdnasequence <-   paste0(base_ftp, gencode_organism,"/release_",version_number,"/gencode.v",version_number,".transcripts.fa.gz")
   url_annogtf <-        paste0(base_ftp, gencode_organism,"/release_",version_number,"/gencode.v",version_number,".annotation.gtf.gz")
   url_annogff3 <-       paste0(base_ftp,gencode_organism, "/release_",version_number,"/gencode.v",version_number,".annotation.gff3.gz")
-  
+
   dest_genomesequence <- file.path(this_dir,gencode_fastaref)
   dest_cdnasequence <-   file.path(this_dir,paste0("gencode.v",version_number,".transcripts.fa.gz"))
   dest_annogtf <-        file.path(this_dir,paste0("gencode.v",version_number,".annotation.gtf.gz"))
@@ -249,28 +249,28 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
   } else {
     message("Already found genome sequence in fasta format")
   }
-  
+
   if(!file.exists(dest_cdnasequence)){
     message("Fetching cdna sequence in fasta format")
     download.file(url = url_cdnasequence,destfile = dest_cdnasequence, quiet = quiet_dl)
   } else {
     message("Already found cdna sequence in fasta format")
   }
-  
+
   if(!file.exists(dest_annogtf)){
     message("Fetching gene annotation in gtf format")
     download.file(url = url_annogtf,destfile = dest_annogtf, quiet = quiet_dl)
   } else {
     message("Already found gene annotation in gtf format")
   }
-  
+
   if(!file.exists(dest_annogff3)){
     message("Fetching gene annotation in gff3 format")
     download.file(url = url_annogff3,destfile = dest_annogff3, quiet = quiet_dl)
   } else {
     message("Already found gene annotation in gff3 format")
   }
-  
+
   if(unzip_files) {
     # unzipping all files so that they are directly accessible for the program to generate indices and co.
     message("\nUnzipping the downloaded resources... (this might take a while)")
@@ -278,14 +278,33 @@ retrieve_gencode_refs <- function(version_number = 30, # or "M21"
     system(paste0("gunzip ", file.path(this_dir,"*gz")))
     message("Done unzipping")
   }
-  
+
   message("\n",Sys.time(), " --- Done retrieving all files for GENCODE version ", version_number)
-  
+
   return(invisible())
 }
 
 # retrieve_gencode_refs(version_number = "30",just_check = FALSE)
 # retrieve_gencode_refs(version_number = "M21",just_check = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## -------------------------------------------------------------------------- ##
@@ -407,7 +426,7 @@ FNR==1 && NR!=1 { while (/^<header>/) getline; }
 ' suppa_hs_GRCh38.92_events*.ioe > suppa_hs_GRCh38.92_events.ioe
 # moving all the files to _ref location (cannot generate them directly, raises error?)
 mv suppa_hs_GRCh38.92_events* _ref/index_suppa_hs_GRCh38.92/
-  
+
 mkdir _ref/index_suppa_mm_GRCm38.92
 suppa.py generateEvents -i _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf \
 -o suppa_mm_GRCm38.92_events -f ioe -e SE SS MX RI FL
@@ -417,11 +436,11 @@ FNR==1 && NR!=1 { while (/^<header>/) getline; }
 ' suppa_mm_GRCm38.92_events*.ioe > suppa_mm_GRCm38.92_events.ioe
 mv suppa_mm_GRCm38.92_events* _ref/index_suppa_mm_GRCm38.92/
 
-# generate the transcript "events"  
+# generate the transcript "events"
 suppa.py generateEvents -i _ref/ENSEMBL_release92/Homo_sapiens.GRCh38.92.gtf \
--o _ref/index_suppa_hs_GRCh38.92/suppa_hs_GRCh38.92_txevents -f ioi 
+-o _ref/index_suppa_hs_GRCh38.92/suppa_hs_GRCh38.92_txevents -f ioi
 suppa.py generateEvents -i _ref/ENSEMBL_release92/Mus_musculus.GRCm38.92.gtf \
--o _ref/index_suppa_mm_GRCm38.92/suppa_mm_GRCm38.92_txevents -f ioi 
+-o _ref/index_suppa_mm_GRCm38.92/suppa_mm_GRCm38.92_txevents -f ioi
 
 ## -------------------------------------------------------------------------- ##
 ##  Retrieving the annotations from AnnotationHub and making them pkgs ------
@@ -440,13 +459,13 @@ edb_v92_human <- ah[["AH60977"]]
 edb_v92_mouse <- ah[["AH60992"]]
 
 makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v92_human)),
-                     version = "0.0.0.9000", 
-                     maintainer = "Federico Marini <marinif@uni-mainz.de>", 
+                     version = "0.0.0.9000",
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>",
                      author = "F Marini",
                      destDir = "_ref")
 
 makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v92_mouse)),
-                     version = "0.0.0.9000", 
+                     version = "0.0.0.9000",
                      maintainer = "Federico Marini <marinif@uni-mainz.de>",
                      author = "F Marini",
                      destDir = "_ref")
@@ -466,13 +485,13 @@ edb_v96_human <- ah[["AH69187"]]
 edb_v96_mouse <- ah[["AH69210"]]
 
 makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v96_human)),
-                     version = "0.0.0.9000", 
-                     maintainer = "Federico Marini <marinif@uni-mainz.de>", 
+                     version = "0.0.0.9000",
+                     maintainer = "Federico Marini <marinif@uni-mainz.de>",
                      author = "F Marini",
                      destDir = "_ref")
 
 makeEnsembldbPackage(ensdb = dbfile(dbconn(edb_v96_mouse)),
-                     version = "0.0.0.9000", 
+                     version = "0.0.0.9000",
                      maintainer = "Federico Marini <marinif@uni-mainz.de>",
                      author = "F Marini",
                      destDir = "_ref")
@@ -502,8 +521,8 @@ cdna_df <- data.frame(t(sapply(as.character(names(cdna)), function(nm) {
   tx <- a[1]
   gene <- gsub("^gene:", "", a[grep("^gene:", a)])
   gene_symbol <- gsub("^gene_symbol:", "", a[grep("^gene_symbol:", a)])
-  c(tx = ifelse(length(tx) != 0, tx, NA), 
-    gene = ifelse(length(gene) != 0, gene, NA), 
+  c(tx = ifelse(length(tx) != 0, tx, NA),
+    gene = ifelse(length(gene) != 0, gene, NA),
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
@@ -511,13 +530,13 @@ ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
   tx <- a[1]
   gene <- gsub("^gene:", "", a[grep("^gene:", a)])
   gene_symbol <- gsub("^gene_symbol:", "", a[grep("^gene_symbol:", a)])
-  c(tx = ifelse(length(tx) != 0, tx, NA), 
-    gene = ifelse(length(gene) != 0, gene, NA), 
+  c(tx = ifelse(length(tx) != 0, tx, NA),
+    gene = ifelse(length(gene) != 0, gene, NA),
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 txgenemap <- rbind(cdna_df, ncrna_df) # , ercc)
 colnames(txgenemap) <- c("TXNAME","GENEID","GENENAME")
-saveRDS(txgenemap, 
+saveRDS(txgenemap,
         file = "_ref/tx2gene_Homo_sapiens.GRCh38.92.cdna.ncrna.txgenemap.rds")
 
 ## Mouse
@@ -528,8 +547,8 @@ cdna_df <- data.frame(t(sapply(as.character(names(cdna)), function(nm) {
   tx <- a[1]
   gene <- gsub("^gene:", "", a[grep("^gene:", a)])
   gene_symbol <- gsub("^gene_symbol:", "", a[grep("^gene_symbol:", a)])
-  c(tx = ifelse(length(tx) != 0, tx, NA), 
-    gene = ifelse(length(gene) != 0, gene, NA), 
+  c(tx = ifelse(length(tx) != 0, tx, NA),
+    gene = ifelse(length(gene) != 0, gene, NA),
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
@@ -537,13 +556,13 @@ ncrna_df <- data.frame(t(sapply(as.character(names(ncrna)), function(nm) {
   tx <- a[1]
   gene <- gsub("^gene:", "", a[grep("^gene:", a)])
   gene_symbol <- gsub("^gene_symbol:", "", a[grep("^gene_symbol:", a)])
-  c(tx = ifelse(length(tx) != 0, tx, NA), 
-    gene = ifelse(length(gene) != 0, gene, NA), 
+  c(tx = ifelse(length(tx) != 0, tx, NA),
+    gene = ifelse(length(gene) != 0, gene, NA),
     gene_symbol = ifelse(length(gene_symbol) != 0, gene_symbol, NA))
 })), stringsAsFactors = FALSE)
 txgenemap <- rbind(cdna_df, ncrna_df) # , ercc)
 colnames(txgenemap) <- c("TXNAME","GENEID","GENENAME")
-saveRDS(txgenemap, 
+saveRDS(txgenemap,
         file = "_ref/tx2gene_Mus_musculus.GRCm38.92.cdna.ncrna.txgenemap.rds")
 
 
@@ -597,9 +616,9 @@ info <- data.frame(t(sapply(nm, function(w) {
   position <- gsub("chromosome:", "", w[grep("^chromosome:", w)])
   if (length(position) == 0) position <- gsub("scaffold:", "", w[grep("^scaffold:", w)])
   symbol <- gsub("gene_symbol:", "", w[grep("^gene_symbol", w)])
-  c(transcript = transcript, 
+  c(transcript = transcript,
     gene = gene,
-    genome = strsplit(position, ":")[[1]][1], 
+    genome = strsplit(position, ":")[[1]][1],
     chromosome = strsplit(position, ":")[[1]][2],
     start = strsplit(position, ":")[[1]][3],
     end = strsplit(position, ":")[[1]][4],
@@ -611,8 +630,8 @@ rownames(info) <- NULL
 info$start <- as.numeric(info$start)
 info$end <- as.numeric(info$end)
 
-txgr <- GRanges(seqnames = info$chromosome, 
-                ranges = IRanges(start = info$start, end = info$end), 
+txgr <- GRanges(seqnames = info$chromosome,
+                ranges = IRanges(start = info$start, end = info$end),
                 strand = info$strand)
 mcols(txgr) <- info[, c("transcript", "gene", "genome", "symbol")]
 
@@ -622,17 +641,17 @@ mcols(txgr) <- info[, c("transcript", "gene", "genome", "symbol")]
 #                             gene = ercctx$gene_id,
 #                             genome = ercctx$source,
 #                             symbol = ercctx$gene_id)
-# 
+#
 # txgr <- suppressWarnings(c(txgr, ercctx))
 names(txgr) <- txgr$transcript
 
-geneinfo <- info %>% group_by(gene) %>% 
+geneinfo <- info %>% group_by(gene) %>%
   summarise(genome = unique(genome),
             chromosome = unique(chromosome),
             start = min(start),
             end = max(end),
             strand = unique(strand),
-            symbol = unique(symbol)) %>% 
+            symbol = unique(symbol)) %>%
   ungroup()
 
 ggr <- GRanges(seqnames = geneinfo$chromosome,
@@ -664,9 +683,9 @@ info <- data.frame(t(sapply(nm, function(w) {
   position <- gsub("chromosome:", "", w[grep("^chromosome:", w)])
   if (length(position) == 0) position <- gsub("scaffold:", "", w[grep("^scaffold:", w)])
   symbol <- gsub("gene_symbol:", "", w[grep("^gene_symbol", w)])
-  c(transcript = transcript, 
+  c(transcript = transcript,
     gene = gene,
-    genome = strsplit(position, ":")[[1]][1], 
+    genome = strsplit(position, ":")[[1]][1],
     chromosome = strsplit(position, ":")[[1]][2],
     start = strsplit(position, ":")[[1]][3],
     end = strsplit(position, ":")[[1]][4],
@@ -678,8 +697,8 @@ rownames(info) <- NULL
 info$start <- as.numeric(info$start)
 info$end <- as.numeric(info$end)
 
-txgr <- GRanges(seqnames = info$chromosome, 
-                ranges = IRanges(start = info$start, end = info$end), 
+txgr <- GRanges(seqnames = info$chromosome,
+                ranges = IRanges(start = info$start, end = info$end),
                 strand = info$strand)
 mcols(txgr) <- info[, c("transcript", "gene", "genome", "symbol")]
 
@@ -689,17 +708,17 @@ mcols(txgr) <- info[, c("transcript", "gene", "genome", "symbol")]
 #                             gene = ercctx$gene_id,
 #                             genome = ercctx$source,
 #                             symbol = ercctx$gene_id)
-# 
+#
 # txgr <- suppressWarnings(c(txgr, ercctx))
 names(txgr) <- txgr$transcript
 
-geneinfo <- info %>% group_by(gene) %>% 
+geneinfo <- info %>% group_by(gene) %>%
   summarise(genome = unique(genome),
             chromosome = unique(chromosome),
             start = min(start),
             end = max(end),
             strand = unique(strand),
-            symbol = unique(symbol)) %>% 
+            symbol = unique(symbol)) %>%
   ungroup()
 
 ggr <- GRanges(seqnames = geneinfo$chromosome,
