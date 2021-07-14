@@ -57,29 +57,49 @@ htmltools::tagList(rmarkdown::html_dependency_font_awesome())
 
 # The datasets {#datasets}
 
+Accessing the Google Sheet where all the information is stored
+
+```{r eval=TRUE}
+library("googlesheets4")
+options(gargle_oauth_email = "fede.maro@gmail.com")
+googlesheets4::gs4_auth()
+# sheets_auth(token = drive_token())
+
+# googlesheets4::sheets_find()
+
+googlesheets4::gs4_get("18t3gpFH4gBGWeSlOfoYLHPXCu_t2xFaoUxJFbp0WZRY")
+
+pltdatasets <- googlesheets4::range_read("18t3gpFH4gBGWeSlOfoYLHPXCu_t2xFaoUxJFbp0WZRY", 
+                          sheet = "Sheet1")
+
+DT::datatable(pltdatasets)
+
+# # access the googledocs sheet
+# # install.packages("googlesheets")
+# library("googlesheets")
+# gs_auth(new_user = TRUE)
+# 
+# library(dplyr)
+# gs_ls() %>% View
+
+# plt_sets <- gs_read(gs_title("Platelets_datasets_collection"))
+```
+
+
 ```{r}
-# access the googledocs sheet
-# install.packages("googlesheets")
-library("googlesheets")
-gs_auth(new_user = TRUE)
-
-library(dplyr)
-gs_ls() %>% View
-
-plt_sets <- gs_read(gs_title("Platelets_datasets_collection"))
 # open up the different Pubmed IDs, to retrieve the doi
 ## not required after the first time :)
 
 # once the doi is there, use rcrossref to get the full textual citation
 # devtools::install_github("ropensci/rcrossref")
-library('rcrossref')
-View(plt_sets)
+library("rcrossref")
+View(pltdatasets)
 ## see here some documentation: https://github.com/ropensci/rcrossref
 # cr_cn(dois = plt_sets$doi[31], format = "text", style = "apa")
-cr_cn(dois = plt_sets$doi[36], format = "text", style = "apa")
-View(get_styles()) # and there search for something with 'no-et-al' to list all authors
+# cr_cn(dois = pltdatasets$doi[36], format = "text", style = "apa")
+# View(get_styles()) # and there search for something with 'no-et-al' to list all authors
 # cr_cn(dois = plt_sets$DOI[36], format = "text", style = "american-medical-association-no-et-al")
-all_crossref_infos <- cr_cn(dois = plt_sets$doi, format = "text", style = "american-medical-association-no-et-al")
+all_crossref_infos <- cr_cn(dois = pltdatasets$doi, format = "text", style = "american-medical-association-no-et-al")
 
 # store this info in a multi-line text document - even better if the exported file is in markdown, it is directly previewable
 all_crossref_infos %>% unlist() %>% writeLines()
@@ -87,9 +107,9 @@ all_crossref_infos %>% unlist() %>% writeLines()
 # writeLines(paste0("pubstatus_",Sys.Date(),"_exported.md"))
 
 # this one gives some bibtex
-cat(cr_cn(dois = plt_sets$doi[36], format = "bibtex"))
+cat(cr_cn(dois = pltdatasets$doi[36], format = "bibtex"))
 
-cr_abstract(plt_sets$doi[3])
+cr_abstract(pltdatasets$doi[3])
 # does not work...
 
 
