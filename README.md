@@ -39,4 +39,7 @@ If you use Plateletopedia, please cite ...
 If you have questions or comments about Plateletopedia, please contact [Federico Marini](marinif@uni-mainz.de).
 
 
+## Code of Conduct
+  
+Please note that the plateletopedia project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
 
