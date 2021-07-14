@@ -1,0 +1,87 @@
+---
+title: >
+  Setting up plateletopedia as a resource
+author:
+- name: Federico Marini
+  affiliation: 
+  - Institute of Medical Biostatistics, Epidemiology and Informatics (IMBEI), Mainz
+  - Center for Thrombosis and Hemostasis (CTH), Mainz
+  email: marinif@uni-mainz.de
+- name: Annekathrin Ludt
+  affiliation: 
+  - Institute of Medical Biostatistics, Epidemiology and Informatics (IMBEI), Mainz
+  email: anneludt@uni-mainz.de
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('plateletopedia')`"
+output: 
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Setting up plateletopedia as a resource}
+  %\VignetteEncoding{UTF-8}  
+  %\VignettePackage{plateletopedia}
+  %\VignetteKeywords{GeneExpression, RNASeq, FunctionalAnnotation, Sequencing, Visualization, QualityControl, GUI}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+<style type="text/css">
+.smaller {
+  font-size: 10px
+}
+</style>
+
+**Compiled date**: `r Sys.Date()`
+
+**Last edited**: 2021-07-14
+
+**License**: `r packageDescription("plateletopedia")[["License"]]`
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  error    = FALSE,
+  warning  = FALSE,
+  eval     = FALSE,
+  message  = FALSE,
+  fig.width = 10
+)
+options(width = 100)
+stopifnot(requireNamespace("htmltools"))
+htmltools::tagList(rmarkdown::html_dependency_font_awesome())
+```
+
+---
+
+# Setup {#setup}
+
+## Retrieval of references
+
+```{r}
+setup_folders(project_name = "plateletopedia")
+
+retrieve_ensembl_refs(version_number = 102, species = "human", just_check = FALSE)
+retrieve_ensembl_refs(version_number = 102, species = "mouse", just_check = FALSE)
+
+retrieve_ensembl_refs(version_number = 104, species = "human", just_check = FALSE)
+retrieve_ensembl_refs(version_number = 104, species = "mouse", just_check = FALSE)
+
+
+
+retrieve_gencode_refs(version_number = "38",just_check = FALSE)
+retrieve_gencode_refs(version_number = "M27",just_check = FALSE)
+
+retrieve_gencode_refs(version_number = "37",just_check = FALSE)
+retrieve_gencode_refs(version_number = "M25",just_check = FALSE)
+
+
+```
+
+## Creating indices for alignment and quantifications
+
+```{r}
+
+```
+

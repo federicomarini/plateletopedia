@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2017-2021 Federico Marini
+Copyright (c) 2021 plateletopedia authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
