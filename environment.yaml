@@ -1,0 +1,33 @@
+name: plateletopedia
+channels:
+- bioconda
+- conda-forge
+dependencies:
+- sra-tools=2.11.0
+- parallel-fastq-dump=0.6.7
+- samtools=1.12
+- salmon=1.5.0
+- star=2.7.9a
+- fastqc=0.11.9
+- seqtk=1.3
+- multiqc=1.10.1
+- pandoc=2.14
+- ucsc-gtftogenepred=377
+- ucsc-genepredtobed=377
+- ucsc-bedtobigbed=377
+- ucsc-bedgraphtobigwig=377
+- ucsc-bigwiginfo=377
+- ucsc-bigwigtobedgraph=377
+- ucsc-bigbedtobed=377
+- ucsc-bigwigtowig=377
+- ucsc-bigwigsummary=377
+
+
+
+
+
+
+- trim-galore=0.6.6
+- cutadapt=3.2
+- bedtools=2.30.0
+- tbb=2020.2
