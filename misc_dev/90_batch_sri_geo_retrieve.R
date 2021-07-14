@@ -13,7 +13,7 @@ source("01_helper_functions.R")
 ## -------------------------------------------------------------------------- ##
 
 samplesinfo_alhasan_jackson_2016 <- fetch_sraruninfo("SRP058654",datasetID = "alhasan_jackson-circ_degradation-2016") %>% 
-  fetch_geoinfo("GSE69192") %>% 
+  # fetch_geoinfo("GSE69192") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
@@ -88,7 +88,7 @@ if(all(samplesinfo_beauchemin_moroy_2017$validated_sra == 0)) {
 ## -------------------------------------------------------------------------- ##
 
 samplesinfo_best_wurdinger_2015 <- fetch_sraruninfo("SRP057500",datasetID = "best_wurdinger-TEPs-2015") %>% 
-  fetch_geoinfo("GSE68086") %>% 
+  # fetch_geoinfo("GSE68086") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
@@ -113,7 +113,7 @@ if(all(samplesinfo_best_wurdinger_2015$validated_sra == 0)) {
 ## -------------------------------------------------------------------------- ##
 
 samplesinfo_best_wurdinger_2017 <- fetch_sraruninfo("SRP093349",datasetID = "best_wurdinger-TEPs_swarm-2017") %>% 
-  fetch_geoinfo("GSE89843") %>% 
+  # fetch_geoinfo("GSE89843") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
@@ -589,7 +589,7 @@ if(all(samplesinfo_londin_rigoutsos_2014$validated_sra == 0)) {
 ## -------------------------------------------------------------------------- ##
 
 samplesinfo_maass_rajewsky_2017 <- fetch_sraruninfo("SRP109805",datasetID = "maass_rajewsky-human_circ-2017") %>% 
-  fetch_geoinfo("GSE100242") %>% 
+  # fetch_geoinfo("GSE100242") %>% 
   create_analysisfolders() %>% 
   get_sradata(force = TRUE) %>% 
   sra_to_fastq(force = TRUE) %>% 
