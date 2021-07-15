@@ -57,11 +57,193 @@ htmltools::tagList(rmarkdown::html_dependency_font_awesome())
 
 # Retrieval of the datasets
 
+This chunk generates all the required scripts to
+
+* fetch information from SRA
+* (if available) fetch info from GEO
+* generate a script to download SRA data
+* generate a script to convert SRA data into fastq (gzipped)
+
 ```{r}
 
+data("pltdatasets")
+
+head(pltdatasets)
 
 
+for(i in seq_len(nrow(pltdatasets))) {
+  cur_study <- pltdatasets[i, ]
+  if (!is.na(cur_study$SRA_accession)) {
+    message(paste(i, cur_study$First_author, cur_study$Last_author, cur_study$Year, cur_study$SRA_accession))
+    
+    dataset_id <- paste0(tolower(cur_study$First_author),
+                         "_",
+                         tolower(cur_study$Last_author),
+                         "-",
+                         tolower(cur_study$Focus),
+                         "-",
+                         cur_study$Year)
+    
+    samplesinfo <- fetch_sraruninfo(sra_id = cur_study$SRA_accession, 
+                                    dataset_id = dataset_id)
+    if(!is.na(cur_study$GEO_accession)) {
+      samplesinfo <- fetch_geoinfo(samplesinfo = samplesinfo,
+                                   geo_id = cur_study$GEO_accession, 
+                                   dataset_id = dataset_id)
+    }
+    samplesinfo <- create_analysisfolders(samplesinfo)
+    samplesinfo <- get_sradata(samplesinfo, 
+                               create_script = TRUE, 
+                               force = TRUE)
+    samplesinfo <- sra_to_fastq(samplesinfo, 
+                                create_script = TRUE, 
+                                force = TRUE)
+  }
+}
+
+# 
+# samplesinfo_alhasan_jackson_2016 <- fetch_sraruninfo("SRP058654",dataset_id = "alhasan_jackson-circ_degradation-2016") %>% 
+#   # fetch_geoinfo("GSE69192") %>% 
+#   create_analysisfolders() %>% 
+#   get_sradata(force = TRUE) %>% 
+#   sra_to_fastq(force = TRUE) %>% 
+#   match_fastq() 
+# samplesinfo_alhasan_jackson_2016 <- validate_sra(samplesinfo_alhasan_jackson_2016)
+# samplesinfo_alhasan_jackson_2016 <- check_fastq(samplesinfo_alhasan_jackson_2016)
+# save(samplesinfo_alhasan_jackson_2016, file = "_samplesinfo/samplesinfo_alhasan_jackson_2016.RData")
+
+# # if sra are all validated, they can be deleted
+# if(all(samplesinfo_alhasan_jackson_2016$validated_sra == 0)) {
+#   # delete from the R environment the sra files
+#   unlink(samplesinfo_alhasan_jackson_2016$files_sra)
+# }
 
 
 ```
+
+This part collects all the scripts to download the sra files
+
+```{r}
+# we search for all commands starting with cmd_01_batchretrieve
+
+scripts_retrieve <- list.files(path = "plateletopedia_publicdata", 
+                               pattern = "^cmd_01_batchretrieve", 
+                               recursive = TRUE, 
+                               full.names = TRUE)
+
+writeLines(paste("bash", scripts_retrieve))
+
+```
+
+Copying the output here to remove them as they are done...
+
+```
+bash plateletopedia_publicdata/alhasan_jackson-circ_degradation-2016/cmd_01_batchretrieve_SRP058654.sh
+bash plateletopedia_publicdata/an_gallagher-erythroid_differentiation-2014/cmd_01_batchretrieve_SRP035312.sh
+bash plateletopedia_publicdata/beauchemin_moroy-megs_gfi1b-2017/cmd_01_batchretrieve_SRP061548.sh
+bash plateletopedia_publicdata/best_wurdinger-teps_pancancer-2015/cmd_01_batchretrieve_SRP057500.sh
+bash plateletopedia_publicdata/best_wurdinger-teps_swarm-2017/cmd_01_batchretrieve_SRP093349.sh
+bash plateletopedia_publicdata/boisset_vanoudenaarden-network_bonemarrow-2016/cmd_01_batchretrieve_SRP092389.sh
+bash plateletopedia_publicdata/bray_rigoutsos-complex_landscape-2013/cmd_01_batchretrieve_SRP017372.sh
+bash plateletopedia_publicdata/campbell_rondina-granzymea_platelets-2018/cmd_01_batchretrieve_SRP114983.sh
+bash plateletopedia_publicdata/campbell_rondina-megs_antiviral-2019/cmd_01_batchretrieve_SRP182839.sh
+bash plateletopedia_publicdata/cimmino_golino-mirna_modulation-2015/cmd_01_batchretrieve_ERP004316.sh
+bash plateletopedia_publicdata/corces_chang-lineagespecific_hematopoiesis-2016/cmd_01_batchretrieve_SRP065216.sh
+bash plateletopedia_publicdata/delbridge_grabow-puma_ttp-2016/cmd_01_batchretrieve_SRP067232.sh
+bash plateletopedia_publicdata/duff_graveley-rnaseq_20humantissues-2015/cmd_01_batchretrieve_SRP056969.sh
+bash plateletopedia_publicdata/eicher_johnson-acute_mi-2016/cmd_01_batchretrieve_SRP053296.sh
+bash plateletopedia_publicdata/extracellular rna communication consortium (ercc)_NA-extracellular_circulating-2018/cmd_01_batchretrieve_SRP150810.sh
+bash plateletopedia_publicdata/fagerberg_uhlen-gene_expr_normal_diseased-2014/cmd_01_batchretrieve_ERP003613.sh
+bash plateletopedia_publicdata/ferdous_scott-chicken_thrombocytes-2016/cmd_01_batchretrieve_SRP090377.sh
+bash plateletopedia_publicdata/feyes_mannhalter-ecoli_platelets-2018-2018/cmd_01_batchretrieve_SRP148569.sh
+bash plateletopedia_publicdata/grover_nerlov-singlecell_hsc-2016/cmd_01_batchretrieve_SRP060557.sh
+bash plateletopedia_publicdata/kissopoulou_osman-plts_polya-2013/cmd_01_batchretrieve_ERP000803.sh
+bash plateletopedia_publicdata/kissopoulou_osman-plts_ribodepl-2013/cmd_01_batchretrieve_ERP003815.sh
+bash plateletopedia_publicdata/lefrancais_looney-lungs_bonemarrow-2017/cmd_01_batchretrieve_SRP097794.sh
+bash plateletopedia_publicdata/londin_rigoutsos-txome_proteome-2014/cmd_01_batchretrieve_SRP028846.sh
+bash plateletopedia_publicdata/maass_rajewsky-human_circ-2017/cmd_01_batchretrieve_SRP109805.sh
+bash plateletopedia_publicdata/marcantoni_berger-hiv_platelets-2018/cmd_01_batchretrieve_SRP108739.sh
+bash plateletopedia_publicdata/meinders_philipsen-sp1sp3_hallmarks-2015/cmd_01_batchretrieve_SRP043469.sh
+bash plateletopedia_publicdata/mills_ingolia-pelo_decay-2017/cmd_01_batchretrieve_SRP098699.sh
+bash plateletopedia_publicdata/mills_ingolia-ribo_profiling-2016/cmd_01_batchretrieve_SRP082436.sh
+bash plateletopedia_publicdata/NA_NA-illumina_bodymap2-2013/cmd_01_batchretrieve_ERP000546.sh
+bash plateletopedia_publicdata/nassa_tarallo-splicing_proteome-2018/cmd_01_batchretrieve_ERP104860.sh
+bash plateletopedia_publicdata/nurnberg_ouwehand-invitro_megs-2012/cmd_01_batchretrieve_ERP001115.sh
+bash plateletopedia_publicdata/osman_provost-pathogen_reduction-2015/cmd_01_batchretrieve_ERP009260.sh
+bash plateletopedia_publicdata/pontes_burbano-mirna_celldamage-2015/cmd_01_batchretrieve_SRP048290.sh
+bash plateletopedia_publicdata/preusser_bindereif-release_circ-2018/cmd_01_batchretrieve_SRP118609.sh
+bash plateletopedia_publicdata/ramirez_mortazavi-dynamic_myeloid-2017/cmd_01_batchretrieve_SRP071547.sh
+bash plateletopedia_publicdata/rowley_weyrich-human_mouse-2011/cmd_01_batchretrieve_SRP119431.sh
+bash plateletopedia_publicdata/sawai_reizis-hsc_multilineage-2016/cmd_01_batchretrieve_SRP071090.sh
+bash plateletopedia_publicdata/shi_weyrich-proteasome_platelets-2014/cmd_01_batchretrieve_SRP062023.sh
+bash plateletopedia_publicdata/soellner_simon-mouserat_atlas-2017/cmd_01_batchretrieve_ERP104395.sh
+bash plateletopedia_publicdata/szabo_salzman-human_fetaldevel-2015/cmd_01_batchretrieve_SRP051249.sh
+bash plateletopedia_publicdata/uni jefferson_NA-platelets_short-2013/cmd_01_batchretrieve_SRP034558.sh
+bash plateletopedia_publicdata/yu_maheswaran-circulating_tumor-2013/cmd_01_batchretrieve_SRP015945.sh
+```
+
+
+and this one converts the sra to fastq data
+
+```{r}
+scripts_fastqdump <- list.files(path = "plateletopedia_publicdata", 
+                                pattern = "^cmd_02_batchfastqdump", 
+                                recursive = TRUE, 
+                                full.names = TRUE)
+
+writeLines(paste("bash", scripts_fastqdump))
+
+```
+
+```
+bash plateletopedia_publicdata/alhasan_jackson-circ_degradation-2016/cmd_02_batchfastqdump_SRP058654.sh
+bash plateletopedia_publicdata/an_gallagher-erythroid_differentiation-2014/cmd_02_batchfastqdump_SRP035312.sh
+bash plateletopedia_publicdata/beauchemin_moroy-megs_gfi1b-2017/cmd_02_batchfastqdump_SRP061548.sh
+bash plateletopedia_publicdata/best_wurdinger-teps_pancancer-2015/cmd_02_batchfastqdump_SRP057500.sh
+bash plateletopedia_publicdata/best_wurdinger-teps_swarm-2017/cmd_02_batchfastqdump_SRP093349.sh
+bash plateletopedia_publicdata/boisset_vanoudenaarden-network_bonemarrow-2016/cmd_02_batchfastqdump_SRP092389.sh
+bash plateletopedia_publicdata/bray_rigoutsos-complex_landscape-2013/cmd_02_batchfastqdump_SRP017372.sh
+bash plateletopedia_publicdata/campbell_rondina-granzymea_platelets-2018/cmd_02_batchfastqdump_SRP114983.sh
+bash plateletopedia_publicdata/campbell_rondina-megs_antiviral-2019/cmd_02_batchfastqdump_SRP182839.sh
+bash plateletopedia_publicdata/cimmino_golino-mirna_modulation-2015/cmd_02_batchfastqdump_ERP004316.sh
+bash plateletopedia_publicdata/corces_chang-lineagespecific_hematopoiesis-2016/cmd_02_batchfastqdump_SRP065216.sh
+bash plateletopedia_publicdata/delbridge_grabow-puma_ttp-2016/cmd_02_batchfastqdump_SRP067232.sh
+bash plateletopedia_publicdata/duff_graveley-rnaseq_20humantissues-2015/cmd_02_batchfastqdump_SRP056969.sh
+bash plateletopedia_publicdata/eicher_johnson-acute_mi-2016/cmd_02_batchfastqdump_SRP053296.sh
+bash plateletopedia_publicdata/extracellular rna communication consortium (ercc)_NA-extracellular_circulating-2018/cmd_02_batchfastqdump_SRP150810.sh
+bash plateletopedia_publicdata/fagerberg_uhlen-gene_expr_normal_diseased-2014/cmd_02_batchfastqdump_ERP003613.sh
+bash plateletopedia_publicdata/ferdous_scott-chicken_thrombocytes-2016/cmd_02_batchfastqdump_SRP090377.sh
+bash plateletopedia_publicdata/feyes_mannhalter-ecoli_platelets-2018-2018/cmd_02_batchfastqdump_SRP148569.sh
+bash plateletopedia_publicdata/grover_nerlov-singlecell_hsc-2016/cmd_02_batchfastqdump_SRP060557.sh
+bash plateletopedia_publicdata/kissopoulou_osman-plts_polya-2013/cmd_02_batchfastqdump_ERP000803.sh
+bash plateletopedia_publicdata/kissopoulou_osman-plts_ribodepl-2013/cmd_02_batchfastqdump_ERP003815.sh
+bash plateletopedia_publicdata/lefrancais_looney-lungs_bonemarrow-2017/cmd_02_batchfastqdump_SRP097794.sh
+bash plateletopedia_publicdata/londin_rigoutsos-txome_proteome-2014/cmd_02_batchfastqdump_SRP028846.sh
+bash plateletopedia_publicdata/maass_rajewsky-human_circ-2017/cmd_02_batchfastqdump_SRP109805.sh
+bash plateletopedia_publicdata/marcantoni_berger-hiv_platelets-2018/cmd_02_batchfastqdump_SRP108739.sh
+bash plateletopedia_publicdata/meinders_philipsen-sp1sp3_hallmarks-2015/cmd_02_batchfastqdump_SRP043469.sh
+bash plateletopedia_publicdata/mills_ingolia-pelo_decay-2017/cmd_02_batchfastqdump_SRP098699.sh
+bash plateletopedia_publicdata/mills_ingolia-ribo_profiling-2016/cmd_02_batchfastqdump_SRP082436.sh
+bash plateletopedia_publicdata/NA_NA-illumina_bodymap2-2013/cmd_02_batchfastqdump_ERP000546.sh
+bash plateletopedia_publicdata/nassa_tarallo-splicing_proteome-2018/cmd_02_batchfastqdump_ERP104860.sh
+bash plateletopedia_publicdata/nurnberg_ouwehand-invitro_megs-2012/cmd_02_batchfastqdump_ERP001115.sh
+bash plateletopedia_publicdata/osman_provost-pathogen_reduction-2015/cmd_02_batchfastqdump_ERP009260.sh
+bash plateletopedia_publicdata/pontes_burbano-mirna_celldamage-2015/cmd_02_batchfastqdump_SRP048290.sh
+bash plateletopedia_publicdata/preusser_bindereif-release_circ-2018/cmd_02_batchfastqdump_SRP118609.sh
+bash plateletopedia_publicdata/ramirez_mortazavi-dynamic_myeloid-2017/cmd_02_batchfastqdump_SRP071547.sh
+bash plateletopedia_publicdata/rowley_weyrich-human_mouse-2011/cmd_02_batchfastqdump_SRP119431.sh
+bash plateletopedia_publicdata/sawai_reizis-hsc_multilineage-2016/cmd_02_batchfastqdump_SRP071090.sh
+bash plateletopedia_publicdata/shi_weyrich-proteasome_platelets-2014/cmd_02_batchfastqdump_SRP062023.sh
+bash plateletopedia_publicdata/soellner_simon-mouserat_atlas-2017/cmd_02_batchfastqdump_ERP104395.sh
+bash plateletopedia_publicdata/szabo_salzman-human_fetaldevel-2015/cmd_02_batchfastqdump_SRP051249.sh
+bash plateletopedia_publicdata/uni jefferson_NA-platelets_short-2013/cmd_02_batchfastqdump_SRP034558.sh
+bash plateletopedia_publicdata/yu_maheswaran-circulating_tumor-2013/cmd_02_batchfastqdump_SRP015945.sh
+```
+
+Once  the whole download and conversion is complete, it is time to match the files, and validate them before deleting the sra entries
+
+```{r}
+
+```
+
 
