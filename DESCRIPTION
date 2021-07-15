@@ -9,6 +9,8 @@ Authors@R:
         )
     )
 Description: What the package does (one paragraph).
+Imports:
+    GEOquery
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
