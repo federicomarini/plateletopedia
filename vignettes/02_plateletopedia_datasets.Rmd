@@ -72,7 +72,12 @@ googlesheets4::gs4_get("18t3gpFH4gBGWeSlOfoYLHPXCu_t2xFaoUxJFbp0WZRY")
 pltdatasets <- googlesheets4::range_read("18t3gpFH4gBGWeSlOfoYLHPXCu_t2xFaoUxJFbp0WZRY", 
                           sheet = "Sheet1")
 
+pltdatasets$n_samples_pub <- as.character(pltdatasets$n_samples_pub)
+
 DT::datatable(pltdatasets)
+
+save(pltdatasets, file = "data/pltdatasets.RData")
+readr::write_tsv(pltdatasets, file = "data/pltdatasets.tsv")
 
 # # access the googledocs sheet
 # # install.packages("googlesheets")
