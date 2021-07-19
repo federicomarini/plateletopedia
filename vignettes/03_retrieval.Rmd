@@ -73,31 +73,33 @@ head(pltdatasets)
 
 for(i in seq_len(nrow(pltdatasets))) {
   cur_study <- pltdatasets[i, ]
-  if (!is.na(cur_study$SRA_accession)) {
-    message(paste(i, cur_study$First_author, cur_study$Last_author, cur_study$Year, cur_study$SRA_accession))
-    
-    dataset_id <- paste0(tolower(cur_study$First_author),
-                         "_",
-                         tolower(cur_study$Last_author),
-                         "-",
-                         tolower(cur_study$Focus),
-                         "-",
-                         cur_study$Year)
-    
-    samplesinfo <- fetch_sraruninfo(sra_id = cur_study$SRA_accession, 
-                                    dataset_id = dataset_id)
-    if(!is.na(cur_study$GEO_accession)) {
-      samplesinfo <- fetch_geoinfo(samplesinfo = samplesinfo,
-                                   geo_id = cur_study$GEO_accession, 
-                                   dataset_id = dataset_id)
+  if(cur_study$essential_info_complete) {
+    if (!is.na(cur_study$SRA_accession)) {
+      message(paste(i, cur_study$First_author, cur_study$Last_author, cur_study$Year, cur_study$SRA_accession))
+      
+      dataset_id <- paste0(tolower(cur_study$First_author),
+                           "_",
+                           tolower(cur_study$Last_author),
+                           "-",
+                           tolower(cur_study$Focus),
+                           "-",
+                           cur_study$Year)
+      
+      samplesinfo <- fetch_sraruninfo(sra_id = cur_study$SRA_accession, 
+                                      dataset_id = dataset_id)
+      if(!is.na(cur_study$GEO_accession)) {
+        samplesinfo <- fetch_geoinfo(samplesinfo = samplesinfo,
+                                     geo_id = cur_study$GEO_accession, 
+                                     dataset_id = dataset_id)
+      }
+      samplesinfo <- create_analysisfolders(samplesinfo)
+      samplesinfo <- get_sradata(samplesinfo, 
+                                 create_script = TRUE, 
+                                 force = TRUE)
+      samplesinfo <- sra_to_fastq(samplesinfo, 
+                                  create_script = TRUE, 
+                                  force = TRUE)
     }
-    samplesinfo <- create_analysisfolders(samplesinfo)
-    samplesinfo <- get_sradata(samplesinfo, 
-                               create_script = TRUE, 
-                               force = TRUE)
-    samplesinfo <- sra_to_fastq(samplesinfo, 
-                                create_script = TRUE, 
-                                force = TRUE)
   }
 }
 
